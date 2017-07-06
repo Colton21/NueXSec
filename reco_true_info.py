@@ -7,6 +7,7 @@ import json
 import numpy as np
 import matplotlib.pyplot as plt
 import pandas as pd
+from collections import Counter
 import root_numpy as rnp
 from tqdm import tqdm
 import timeit
@@ -35,16 +36,20 @@ infile = 'nue_xsec_extraction.root'
 infile_tree_name = 'TrueRecoMon/pandora'
 df = Pandafy(infile, infile_tree_name)
 
+# Number of MC Particles
 nEvents = len(df.index)
+print 'Number of MC Particles: %s' % (nEvents)
+
 # check if data frame is empty
 if(nEvents == 0):
     print >> sys.stderr, 'Data Frame is Null!'
     exit(1)
 # for guidance of data product names
 print df.head(1)
-print 'Number of MC Particles: %s' % (nEvents)
 
+############################################################################
 # let's try and remove all of the "bad" events first, before looking at reco
+############################################################################
 df = removeZeroMCP(df)
 nEvents_MCParticle = len(df.index)
 print 'Number of Events w/ MCParticles: ', nEvents_MCParticle
@@ -56,14 +61,18 @@ print 'Number of Events w/ Non-Zero MCEng: ', nEvents_MCEnergy
 good_fraction = (float(nEvents_MCEnergy) / float(nEvents)) * 100.
 print 'Good Fraction: ', good_fraction
 
-
+###########################
 # filter events to be inTPC
+###########################
 df = inTPC(df)
 nEvents_inTPC = len(df.index)
 print 'MC Particles in TPC: ', nEvents_inTPC
 
-
+###################################################
 # let's look at some characteristics of the dataset
+###################################################
+# zeroIndex should return true MC neutrino objects
+# as they are all stored at index 0 per event
 df_zero = zeroIndex(df)
 df_nues = df_zero.drop(df_zero[df_zero.mcPdg != 12].index)
 nMCNues = len(df_nues.index)
@@ -88,15 +97,9 @@ ax = fig_pfpnu.add_subplot(111)
 df_pfp_neutrino_pdgs.plot.hist(alpha=0.5)
 ax.set_xlabel('PFP Neutrino per event')
 
-# how many 'primary' pfps
-# does this include the neutrino in the count for the pfo?
-# it should not include the neutrino, however this counter takes into account
-# pfps which may have been reconstructed without a valid pdg code?
-# fig_pfps = plt.figure()
-# ax = fig_pfps.add_subplot(111)
-# df_pfp_neutrinos.nPrimaryPfos.plot.hist(alpha=0.5)
-# ax.set_xlabel('Primary PFPs per event')
-# print df_pfp_neutrinos.nPrimaryPfos
+####################################
+# compare MC showers/tracks per event
+###################################
 df_mcprimary = getMCPrimary(df)
 mc_shower_counter = 0
 mc_track_counter = 0
@@ -137,6 +140,9 @@ ax.set_xlabel('Primary MC per event')
 plt.legend()
 plt.show()
 
+########################################
+# compare pfp showers / tracks per event
+########################################
 df_pfps = getAllPfps(df_valid_pfpart)
 pfp_shower_counter = 0
 pfp_track_counter = 0
@@ -145,9 +151,6 @@ pfp_shower_array = []
 pfp_track_array = []
 pfp_array = []
 for pfp in df_pfps.index:
-    isPrimary = df_pfps.loc[pfp, 'pfoIsPrimary']
-    # if(isPrimary == True):
-    #     print df_pfps.loc[pfp, 'pfoPdg']
     if(df_pfps.loc[pfp, 'index'] == 0 and first_event == False):  # new event, restart counter
         pfp_shower_array.append(pfp_shower_counter)
         pfp_track_array.append(pfp_track_counter)
@@ -173,15 +176,198 @@ ax.set_xlabel('PFP per event')
 plt.legend()
 plt.show()
 
+#####################################
 # let's also look at the pfp accuracy
+####################################
 
 # how often are showers actually showers?
 df_pfp_showers = getPfpShower(df_valid_pfpart)
-mcPdg_shower = df_pfp_showers.mcPdg
-pfpPdg_shower = df_pfp_showers.pfoPdg
-for showers in mcPdg_shower.index:
-    if(mcPdg_shower[showers] != pfpPdg_shower[showers]):
-        print 'MC PDG and PFP PDG (showers) do not match!'
+mcPdg_showers = df_pfp_showers.mcPdg
+pfpPdg_showers = df_pfp_showers.pfoPdg
+available_hits_shower = df_pfp_showers.nAvailableHits
+pfo_hits_shower = df_pfp_showers.nPfoHits
+mc_hits_shower = df_pfp_showers.nMCHits
+false_pfp_counter = 0
+true_pfp_counter = 0
+photon_pfp_counter = 0
+
+mcVtxX_shwr = df_pfp_showers.mcVtxX
+mcVtxY_shwr = df_pfp_showers.mcVtxY
+mcVtxZ_shwr = df_pfp_showers.mcVtxZ
+pfpVtxX_shwr = df_pfp_showers.pfoVtxX
+pfpVtxY_shwr = df_pfp_showers.pfoVtxY
+pfpVtxZ_shwr = df_pfp_showers.pfoVtxZ
+vtx_diff_X_shwr = []
+vtx_diff_Y_shwr = []
+vtx_diff_Z_shwr = []
+vtx_diff_shwr = []
+vtx_diff_X_elec = []
+vtx_diff_Y_elec = []
+vtx_diff_Z_elec = []
+vtx_diff_elec = []
+mcDirX_shwr = df_pfp_showers.mcDirX
+mcDirY_shwr = df_pfp_showers.mcDirY
+mcDirZ_shwr = df_pfp_showers.mcDirZ
+pfpDirX_shwr = df_pfp_showers.pfoDirX
+pfpDirY_shwr = df_pfp_showers.pfoDirY
+pfpDirZ_shwr = df_pfp_showers.pfoDirZ
+dir_diff_X_shwr = []
+dir_diff_Y_shwr = []
+dir_diff_Z_shwr = []
+dir_diff_shwr = []
+
+particle_list = []
+pion_pfp_hits = []
+pion_mc_hits = []
+pion_ratio_hits = []
+neutron_pfp_hits = []
+neutron_mc_hits = []
+neutron_ratio_hits = []
+proton_pfp_hits = []
+proton_mc_hits = []
+proton_ratio_hits = []
+photon_pfp_hits = []
+photon_mc_hits = []
+photon_ratio_hits = []
+electron_pfp_hits = []
+electron_mc_hits = []
+electron_ratio_hits = []
+for showers in mcPdg_showers.index:
+    mcPdg_shower = mcPdg_showers[showers]
+    pfpPdg_shower = pfpPdg_showers[showers]
+    pfpHits = pfo_hits_shower[showers]
+    mcHits = mc_hits_shower[showers]
+    # let's do some true mc comparisons
+    # vertex
+    x_diff = pfpVtxX_shwr[showers] - mcVtxX_shwr[showers]
+    y_diff = pfpVtxY_shwr[showers] - mcVtxY_shwr[showers]
+    z_diff = pfpVtxZ_shwr[showers] - mcVtxZ_shwr[showers]
+    total_diff = np.sqrt((x_diff * x_diff) +
+                         (y_diff * y_diff) + (z_diff * z_diff))
+    vtx_diff_X_shwr.append(x_diff)
+    vtx_diff_Y_shwr.append(y_diff)
+    vtx_diff_Z_shwr.append(z_diff)
+    vtx_diff_shwr.append(total_diff)
+    # direction
+    dir_x_diff_shwr = pfpDirX_shwr[showers] - mcDirX_shwr[showers]
+    dir_y_diff_shwr = pfpDirY_shwr[showers] - mcDirY_shwr[showers]
+    dir_z_diff_shwr = pfpDirZ_shwr[showers] - mcDirZ_shwr[showers]
+    dir_dot = np.dot([pfpDirX_shwr[showers], pfpDirY_shwr[showers], pfpDirZ_shwr[showers]], [
+                     mcDirX_shwr[showers], mcDirY_shwr[showers], mcDirZ_shwr[showers]])
+    # print 'PFP', pfpDirX[nues], pfpDirY[nues], pfpDirZ[nues]
+    # print 'MC ', mcDirX[nues], mcDirY[nues], mcDirZ[nues]
+    dir_diff_X_shwr.append(dir_x_diff_shwr)
+    dir_diff_Y_shwr.append(dir_y_diff_shwr)
+    dir_diff_Z_shwr.append(dir_z_diff_shwr)
+    dir_diff_shwr.append(dir_dot)
+
+    if(mcPdg_shower != pfpPdg_shower and mcPdg_shower != 22):
+        false_pfp_counter = false_pfp_counter + 1
+        if(mcPdg_shower == 211 or mcPdg_shower == -211):
+            particle_list.append('Pion')
+            pion_pfp_hits.append(pfpHits)
+            pion_mc_hits.append(mcHits)
+            pion_ratio_hits.append(float(pfpHits) / float(mcHits))
+        if(mcPdg_shower == 2112):
+            particle_list.append('Neutron')
+            neutron_pfp_hits.append(pfpHits)
+            neutron_mc_hits.append(mcHits)
+            neutron_ratio_hits.append(float(pfpHits) / float(mcHits))
+        if(mcPdg_shower == 2212):
+            particle_list.append('Proton')
+            proton_pfp_hits.append(pfpHits)
+            proton_mc_hits.append(mcHits)
+            proton_ratio_hits.append(float(pfpHits) / float(mcHits))
+    if(mcPdg_shower == 22):
+        photon_pfp_counter = photon_pfp_counter + 1
+        particle_list.append('Photon')
+        photon_pfp_hits.append(pfpHits)
+        photon_mc_hits.append(mcHits)
+        photon_ratio_hits.append(float(pfpHits) / float(mcHits))
+    if(mcPdg_shower == pfpPdg_shower):
+        # print 'Electron Num Unmatched Hits: ', available_hits_shower[showers]
+        # print 'Electron: ', pfo_hits_shower[showers]
+        true_pfp_counter = true_pfp_counter + 1
+        particle_list.append('Electron')
+        electron_pfp_hits.append(pfpHits)
+        electron_mc_hits.append(mcHits)
+        electron_ratio_hits.append(float(pfpHits) / float(mcHits))
+        elec_x_diff = pfpVtxX_shwr[showers] - mcVtxX_shwr[showers]
+        elec_y_diff = pfpVtxY_shwr[showers] - mcVtxY_shwr[showers]
+        elec_z_diff = pfpVtxZ_shwr[showers] - mcVtxZ_shwr[showers]
+        elec_total_diff = np.sqrt((elec_x_diff * elec_x_diff) +
+                                  (elec_y_diff * elec_y_diff) + (elec_z_diff * elec_z_diff))
+        vtx_diff_X_elec.append(elec_x_diff)
+        vtx_diff_Y_elec.append(elec_y_diff)
+        vtx_diff_Z_elec.append(elec_z_diff)
+        vtx_diff_elec.append(elec_total_diff)
+
+print 'Showers Reconstructed: ', len(mcPdg_showers.index)
+print 'True Electron Showers: ', true_pfp_counter
+print 'Not Showers          : ', false_pfp_counter
+print 'True Photon Showers  : ', photon_pfp_counter
+# what are the particles most reconstructed as a shower?
+particle_counts = Counter(particle_list)
+temp_df = pd.DataFrame.from_dict(particle_counts, orient='index')
+fig_pfp_showers = plt.figure()
+ax = fig_pfp_showers.add_subplot(111)
+temp_df.plot(kind='bar', alpha=0.5)
+ax.set_xlabel('True Particle Reconstructed as PFP Shower')
+
+# histogram of mc shower hits
+fig_mc_shower_hits = plt.figure()
+ax = fig_mc_shower_hits.add_subplot(111)
+mult_mc = [pion_mc_hits, neutron_mc_hits, proton_mc_hits,
+           photon_mc_hits, electron_mc_hits]
+_ = plt.hist(mult_mc, 20, (0, 1000), histtype='bar', fill=True, stacked=True, color=[
+             'wheat', 'goldenrod', 'darkmagenta', 'skyblue', 'tomato'], label=['Pion', 'Neutron', 'Proton', 'Photon', 'Electron'])
+ax.set_xlabel('True MC Hits')
+plt.legend()
+plt.show()
+
+# histogram of pfp shower hits
+fig_pfp_shower_hits = plt.figure()
+ax = fig_pfp_shower_hits.add_subplot(111)
+mult_pfp = [pion_pfp_hits, neutron_pfp_hits, proton_pfp_hits,
+            photon_pfp_hits, electron_pfp_hits]
+_ = plt.hist(mult_pfp, 20, (0, 1000), histtype='bar', fill=True, stacked=True, color=[
+             'wheat', 'goldenrod', 'darkmagenta', 'skyblue', 'tomato'], label=['Pion', 'Neutron', 'Proton', 'Photon', 'Electron'])
+ax.set_xlabel('Reconstructed Hits')
+plt.legend()
+plt.show()
+
+# histogram of ratio pfp/MC shower hits
+fig_pfp_shower_hits = plt.figure()
+ax = fig_pfp_shower_hits.add_subplot(111)
+mult_ratio = [pion_ratio_hits, neutron_ratio_hits,
+              proton_ratio_hits, photon_ratio_hits, electron_ratio_hits]
+_ = plt.hist(mult_ratio, 20, (0, 1), histtype='bar', fill=True, stacked=True, color=[
+             'wheat', 'goldenrod', 'darkmagenta', 'skyblue', 'tomato'], label=['Pion', 'Neutron', 'Proton', 'Photon', 'Electron'])
+ax.set_xlabel('Ratio Reco / MC Hits')
+plt.legend()
+plt.show()
+
+# histograms for vtx
+fig_vtx_diff_elec = plt.figure()
+ax = fig_vtx_diff_elec.add_subplot(111)
+mult_vtx = [vtx_diff_X_elec, vtx_diff_Y_elec,
+            vtx_diff_Z_elec, vtx_diff_elec]
+_ = plt.hist(mult_vtx, 80, (0, 80), histtype='bar', fill=True, stacked=True, color=[
+             'tomato', 'goldenrod', 'darkmagenta', 'skyblue'], label=['X', 'Y', 'Z', 'Total'])
+ax.set_xlabel('Reco - True Shower Vertex [cm]')
+plt.legend()
+plt.show()
+
+# histograms for vtx, true electron only
+fig_vtx_diff_shwr = plt.figure()
+ax = fig_vtx_diff_shwr.add_subplot(111)
+mult_vtx = [vtx_diff_X_shwr, vtx_diff_Y_shwr,
+            vtx_diff_Z_shwr, vtx_diff_shwr]
+_ = plt.hist(mult_vtx, 80, (0, 80), histtype='bar', fill=True, stacked=True, color=[
+             'tomato', 'goldenrod', 'darkmagenta', 'skyblue'], label=['X', 'Y', 'Z', 'Total'])
+ax.set_xlabel('Reco - True Shower (Electron) Vertex [cm]')
+plt.legend()
+plt.show()
 
 # how often are nues actually nues?
 df_pfp_nues = getPfpNue(df_valid_pfpart)
@@ -191,13 +377,89 @@ mcPdg_nue = df_pfp_nues.mcPdg
 pfpPdg_nue = df_pfp_nues.pfoPdg
 n_available_hits_nue = []
 available_hits_nue = df_pfp_nues.nAvailableHits
+mcVtxX = df_pfp_nues.mcVtxX
+mcVtxY = df_pfp_nues.mcVtxY
+mcVtxZ = df_pfp_nues.mcVtxZ
+pfpVtxX = df_pfp_nues.pfoVtxX
+pfpVtxY = df_pfp_nues.pfoVtxY
+pfpVtxZ = df_pfp_nues.pfoVtxZ
+vtx_diff_X = []
+vtx_diff_Y = []
+vtx_diff_Z = []
+vtx_diff = []
+mcDirX = df_pfp_nues.mcDirX
+mcDirY = df_pfp_nues.mcDirY
+mcDirZ = df_pfp_nues.mcDirZ
+pfpDirX = df_pfp_nues.pfoDirX
+pfpDirY = df_pfp_nues.pfoDirY
+pfpDirZ = df_pfp_nues.pfoDirZ
+dir_diff_X = []
+dir_diff_Y = []
+dir_diff_Z = []
+dir_diff = []
 for nues in mcPdg_nue.index:
     if(mcPdg_nue[nues] != pfpPdg_nue[nues]):
-        print 'MC PDG and PFP PDG do not match!'
+        print 'Nue: MC PDG and PFP PDG do not match!'
         continue
     n_available_hits_nue.append(available_hits_nue[nues])
 
-print n_available_hits_nue
+    # let's do some true mc comparisons
+    # vertex
+    x_diff = pfpVtxX[nues] - mcVtxX[nues]
+    y_diff = pfpVtxY[nues] - mcVtxY[nues]
+    z_diff = pfpVtxZ[nues] - mcVtxZ[nues]
+    total_diff = np.sqrt((x_diff * x_diff) +
+                         (y_diff * y_diff) + (z_diff * z_diff))
+    vtx_diff_X.append(x_diff)
+    vtx_diff_Y.append(y_diff)
+    vtx_diff_Z.append(z_diff)
+    vtx_diff.append(total_diff)
+    # direction
+    dir_x_diff = pfpDirX[nues] - mcDirX[nues]
+    dir_y_diff = pfpDirY[nues] - mcDirY[nues]
+    dir_z_diff = pfpDirZ[nues] - mcDirZ[nues]
+    dir_dot = np.dot([pfpDirX[nues], pfpDirY[nues], pfpDirZ[nues]], [
+                     mcDirX[nues], mcDirY[nues], mcDirZ[nues]])
+    # print 'PFP', pfpDirX[nues], pfpDirY[nues], pfpDirZ[nues]
+    # print 'MC ', mcDirX[nues], mcDirY[nues], mcDirZ[nues]
+    dir_diff_X.append(dir_x_diff)
+    dir_diff_Y.append(dir_y_diff)
+    dir_diff_Z.append(dir_z_diff)
+    dir_diff.append(dir_dot)
+
+# histograms for vtx
+fig_vtx_diff = plt.figure()
+ax = fig_vtx_diff.add_subplot(111)
+mult_vtx = [vtx_diff_X, vtx_diff_Y,
+            vtx_diff_Z, vtx_diff]
+_ = plt.hist(mult_vtx, 80, (0, 80), histtype='bar', fill=True, stacked=True, color=[
+             'tomato', 'goldenrod', 'darkmagenta', 'skyblue'], label=['X', 'Y', 'Z', 'Total'])
+ax.set_xlabel('Reco - True Nue Vertex [cm]')
+plt.legend()
+plt.show()
+
+################################################
+# direction isn't being filled for pfp properly...
+# histograms for direction
+fig_dir_diff = plt.figure()
+ax = fig_dir_diff.add_subplot(111)
+mult_dir = [dir_diff_X, dir_diff_Y,
+            dir_diff_Z]
+_ = plt.hist(mult_dir, 20, (-1, 1), histtype='bar', fill=True, stacked=True, color=[
+             'tomato', 'goldenrod', 'darkmagenta'], label=['X', 'Y', 'Z'])
+ax.set_xlabel('Reco - True Direction')
+plt.legend()
+plt.show()
+
+fig_dir_dot = plt.figure()
+ax = fig_dir_dot.add_subplot(111)
+_ = plt.hist(dir_diff, 20, (0, 1), histtype='bar',
+             fill=True, stacked=True, color='tomato', label='Dot Product')
+ax.set_xlabel('Cosine(Theta)')
+plt.legend()
+plt.show()
+
+print 'Not Matched Nue Hits: ', n_available_hits_nue
 nue_efficiency = float(nPfpNues) / float(nMCNues) * 100.
 print 'Nue Reco Efficiency: ', nue_efficiency
 

@@ -91,3 +91,10 @@ def getAllPfps(dataframe):
 def getPfpShower(dataframe):
     dataframe = dataframe.drop(dataframe[dataframe.pfoPdg != 11].index)
     return dataframe
+
+# get only CC MC events
+
+
+def getCConly(dataframe):
+    dataframe = dataframe.drop(dataframe[dataframe.mcIsCC == False].index)
+    return dataframe
