@@ -297,7 +297,6 @@ for showers in tqdm(mcPdg_showers.index):
     pfp_energy_shower = energy_pfp_shwr[showers]
     mcEnergy_shwr.append(mc_energy_shower)
     pfpEnergy_shwr.append(pfp_energy_shower)
-    print pfp_energy_shower
     diff_energy_shwr.append(pfp_energy_shower - mc_energy_shower)
     if(mcPdg_shower != pfpPdg_shower and mcPdg_shower != 22):
         false_pfp_counter = false_pfp_counter + 1
@@ -521,6 +520,42 @@ _ = plt.hist2d(vtx_Z_mc_shwr, vtx_diff_shwr,
                20, cmap=cm.summer, norm=LogNorm())
 ax.set_xlabel('True Shower Vtx Z')
 ax.set_ylabel('Reco - True Shower Vertex')
+plt.colorbar()
+plt.show()
+
+fig_shower_hits_2d = plt.figure()
+ax = fig_shower_hits_2d.add_subplot(111)
+_ = plt.hist2d(pfpEnergy_elec, vtx_diff_elec,
+               20, cmap=cm.summer, norm=LogNorm())
+ax.set_xlabel('Reco Electron Energy')
+ax.set_ylabel('Reco - True Electron Vertex')
+plt.colorbar()
+plt.show()
+
+fig_shower_hits_2d = plt.figure()
+ax = fig_shower_hits_2d.add_subplot(111)
+_ = plt.hist2d(mcEnergy_elec, vtx_diff_elec,
+               20, cmap=cm.summer, norm=LogNorm())
+ax.set_xlabel('True Electron Energy')
+ax.set_ylabel('Reco - True Electron Vertex')
+plt.colorbar()
+plt.show()
+
+fig_shower_hits_2d = plt.figure()
+ax = fig_shower_hits_2d.add_subplot(111)
+_ = plt.hist2d(vtx_Z_pfp_elec, vtx_diff_elec,
+               20, cmap=cm.summer, norm=LogNorm())
+ax.set_xlabel('Reco Electron Vtx Z')
+ax.set_ylabel('Reco - True Electron Vertex')
+plt.colorbar()
+plt.show()
+
+fig_shower_hits_2d = plt.figure()
+ax = fig_shower_hits_2d.add_subplot(111)
+_ = plt.hist2d(vtx_Z_mc_elec, vtx_diff_elec,
+               20, cmap=cm.summer, norm=LogNorm())
+ax.set_xlabel('True Electron Vtx Z')
+ax.set_ylabel('Reco - True Electron Vertex')
 plt.colorbar()
 plt.show()
 
