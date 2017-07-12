@@ -20,7 +20,7 @@ start_time = timeit.default_timer()
 print 'Begin Selection - Time: ', start_time
 
 # open all relevant dataframes
-infile = 'nue_xsec_extraction_2.root'
+infile = 'nue_matching.root'
 infile_tree_name = 'TrueRecoMon/pandora'
 infile_tree_name2 = 'NueXsec/optical_tree'
 df = Pandafy(infile, infile_tree_name)

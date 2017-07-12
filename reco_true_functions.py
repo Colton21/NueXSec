@@ -11,14 +11,11 @@ import sys
 def inTimeList(dataframe, startTime, endTime, flashThreshold):
     failEvents = []
     # more than one entry in some events -> need to drop duplicates
-    #temp_df_evt = dataframe.drop_duplicates('event')
-    temp_df_evt = dataframe.drop_duplicates('Event')
-    # for i in dataframe.event:
-    for i in tqdm(temp_df_evt.Event):
+    temp_df_evt = dataframe.drop_duplicates('event')
+    for i in tqdm(temp_df_evt.event):
         eventPass = False
         temp_df1 = dataframe.drop(
-            dataframe[dataframe.Event != i].index)
-        # dataframe[dataframe.event != i].index)
+            dataframe[dataframe.event != i].index)
         for flash in temp_df1.index:
             if(temp_df1.OpFlashPE[flash] >= flashThreshold):
                 if(temp_df1.OpFlashTime[flash] <= endTime and temp_df1.OpFlashTime[flash] >= startTime):
@@ -33,8 +30,7 @@ def inTimeList(dataframe, startTime, endTime, flashThreshold):
 def inTimeDataFrame(dataframe, failEvents):
     for events in failEvents:
         dataframe = dataframe.drop(
-            # dataframe[(dataframe.event == failEvents)].index)
-            dataframe[dataframe.Event == events].index)
+            dataframe[dataframe.event == events].index)
     return dataframe
 
 
@@ -58,10 +54,8 @@ def flashRecoVtxDist(dataframe_reco, dataframe_opt, distance):
         temp_df1 = dataframe_showers.drop(
             dataframe_showers[dataframe_showers.event != i].index)
         temp_df2 = dataframe_opt.drop(
-            # dataframe_opt[dataframe_opt.event != i].index)
-            dataframe_opt[dataframe_opt.Event != i].index)
+            dataframe_opt[dataframe_opt.event != i].index)
         if(temp_df2.empty == True):
-            #print >> sys.stderr, 'Data Frame Empty - maybe something is wrong!'
             tqdm.write('Data Frame Empty - maybe something is wrong!')
             failEvents.append(i)
             continue
@@ -87,7 +81,6 @@ def flashRecoVtxDist(dataframe_reco, dataframe_opt, distance):
     for events in failEvents:
         dataframe_reco = dataframe_reco.drop(
             dataframe_reco[dataframe_reco.event == events].index)
-        # dataframe_reco[dataframe_reco.Event == events].index)
 
     # let's just do the plotting here for now...
     fig = plt.figure()
@@ -159,11 +152,11 @@ def removeZeroMCEng(dataframe):
     return dataframe
 
 # grab the 0 index particles - index is overloaded so have to use iloc to get
-# the third column
+# the fourth column
 
 
 def zeroIndex(dataframe):
-    dataframe = dataframe.drop(dataframe[dataframe.iloc[:, 2] != 0].index)
+    dataframe = dataframe.drop(dataframe[dataframe.iloc[:, 3] != 0].index)
     return dataframe
 
 # construct dataframe of only valid PFParticles]

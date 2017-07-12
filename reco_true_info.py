@@ -34,7 +34,8 @@ start_time = timeit.default_timer()
 print 'Begin Reco True Analysis: ', start_time
 
 # open file and tree root table
-infile = 'nue_xsec_extraction_2.root'
+#infile = 'nue_xsec_extraction_2.root'
+infile = 'nue_matching.root'
 infile_tree_name = 'TrueRecoMon/pandora'
 df = Pandafy(infile, infile_tree_name)
 
@@ -194,8 +195,7 @@ photon_pfp_counter = 0
 
 
 # energy
-#energy_mc_shwr = df_pfp_showers.mcMomentum
-energy_mc_shwr = df_pfp_showers.mcEnergy
+energy_mc_shwr = df_pfp_showers.mcMomentum
 energy_pfp_shwr = df_pfp_showers.pfoEnergy
 mcEnergy_shwr = []
 mcEnergy_elec = []
@@ -239,6 +239,12 @@ vtx_diff_Y_elec = []
 vtx_diff_Z_elec = []
 vtx_diff_elec = []
 vtx_Z_pfp_shwr = []
+vtx_X_pfp_elec = []
+vtx_X_pfp_prot = []
+vtx_X_pfp_gamma = []
+vtx_Y_pfp_elec = []
+vtx_Y_pfp_prot = []
+vtx_Y_pfp_gamma = []
 vtx_Z_pfp_elec = []
 vtx_Z_pfp_prot = []
 vtx_Z_pfp_gamma = []
@@ -343,6 +349,9 @@ for showers in tqdm(mcPdg_showers.index):
             mcEnergy_prot.append(mc_energy_shower)
             pfpEnergy_prot.append(pfp_energy_shower)
             diff_energy_prot.append(pfp_energy_shower - mc_energy_shower)
+            vtx_X_pfp_prot.append(pfpVtxX_shwr[showers])
+            vtx_Y_pfp_prot.append(pfpVtxY_shwr[showers])
+            vtx_Z_pfp_prot.append(pfpVtxZ_shwr[showers])
     if(mcPdg_shower == 22):
         photon_pfp_counter = photon_pfp_counter + 1
         mcEnergy_notElec.append(mc_energy_shower)
@@ -355,6 +364,10 @@ for showers in tqdm(mcPdg_showers.index):
         mcEnergy_gamma.append(mc_energy_shower)
         pfpEnergy_gamma.append(pfp_energy_shower)
         diff_energy_gamma.append(pfp_energy_shower - mc_energy_shower)
+        vtx_X_pfp_gamma.append(pfpVtxX_shwr[showers])
+        vtx_Y_pfp_gamma.append(pfpVtxY_shwr[showers])
+        vtx_Z_pfp_gamma.append(pfpVtxZ_shwr[showers])
+
     if(mcPdg_shower == pfpPdg_shower):
         # print 'Electron Num Unmatched Hits: ', available_hits_shower[showers]
         # print 'Electron: ', pfo_hits_shower[showers]
@@ -372,6 +385,8 @@ for showers in tqdm(mcPdg_showers.index):
         vtx_diff_Y_elec.append(elec_y_diff)
         vtx_diff_Z_elec.append(elec_z_diff)
         vtx_diff_elec.append(elec_total_diff)
+        vtx_X_pfp_elec.append(pfpVtxX_shwr[showers])
+        vtx_Y_pfp_elec.append(pfpVtxY_shwr[showers])
         vtx_Z_pfp_elec.append(pfpVtxZ_shwr[showers])
         vtx_Z_mc_elec.append(mcVtxZ_shwr[showers])
         mcEnergy_elec.append(mc_energy_shower)
@@ -680,6 +695,9 @@ vtx_diff_X = []
 vtx_diff_Y = []
 vtx_diff_Z = []
 vtx_diff = []
+nue_pfp_vtxX = []
+nue_pfp_vtxY = []
+nue_pfp_vtxZ = []
 mcDirX = df_pfp_nues.mcDirX
 mcDirY = df_pfp_nues.mcDirY
 mcDirZ = df_pfp_nues.mcDirZ
@@ -707,6 +725,9 @@ for nues in tqdm(mcPdg_nue.index):
     vtx_diff_Y.append(y_diff)
     vtx_diff_Z.append(z_diff)
     vtx_diff.append(total_diff)
+    nue_pfp_vtxX.append(pfpVtxX[nues])
+    nue_pfp_vtxY.append(pfpVtxY[nues])
+    nue_pfp_vtxZ.append(pfpVtxZ[nues])
     # direction
     dir_x_diff = pfpDirX[nues] - mcDirX[nues]
     dir_y_diff = pfpDirY[nues] - mcDirY[nues]
@@ -752,6 +773,9 @@ plt.show()
 # ax.set_xlabel('Cosine(Theta)')
 # plt.legend()
 # plt.show()
+
+# some comparisons between nue and showers
+
 
 # print 'Not Matched Nue Hits: ', n_available_hits_nue
 nue_efficiency = float(nPfpNues) / float(nMCNues) * 100.
