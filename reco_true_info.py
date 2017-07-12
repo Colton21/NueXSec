@@ -34,7 +34,7 @@ start_time = timeit.default_timer()
 print 'Begin Reco True Analysis: ', start_time
 
 # open file and tree root table
-#infile = 'nue_xsec_extraction_2.root'
+# infile = 'nue_xsec_extraction_2.root'
 infile = 'nue_matching.root'
 infile_tree_name = 'TrueRecoMon/pandora'
 df = Pandafy(infile, infile_tree_name)
@@ -504,7 +504,7 @@ plt.show()
 # histograms for energy
 fig_energy_mc = plt.figure()
 ax = fig_energy_mc.add_subplot(111)
-#mult_eng_mc = [mcEnergy_shwr, mcEnergy_elec, mcEnergy_notElec]
+# mult_eng_mc = [mcEnergy_shwr, mcEnergy_elec, mcEnergy_notElec]
 mult_eng_mc = [mcEnergy_pion, mcEnergy_neut,
                mcEnergy_prot, mcEnergy_gamma, mcEnergy_elec]
 _ = plt.hist(mult_eng_mc, 80, (0, 2), histtype='bar', fill=True, stacked=True,
@@ -774,7 +774,62 @@ plt.show()
 # plt.legend()
 # plt.show()
 
+##########################################
 # some comparisons between nue and showers
+##########################################
+diff_nue_shower_vtx_elec = []
+diff_nue_shower_vtx_gamma = []
+diff_nue_shower_vtx_prot = []
+for nues in tqdm(df_pfp_nues.index):
+    if(mcPdg_nue[nues] != pfpPdg_nue[nues]):
+        tqdm.write('Nue: MC PDG and PFP PDG do not match!')
+        continue
+
+    temp_df1 = df_pfp_showers.drop(
+        df_pfp_showers[df_pfp_showers.event != df_pfp_nues.event[nues]].index)
+    for showers in (temp_df1.index):
+        # print 'Nue Vtx X: ', pfpVtxX[nues]
+        # print 'Particle: ', showers, ' has a Vtx X: ', pfpVtxX_shwr[showers]
+        if(temp_df1.pfoPdg[showers] == 11):
+            vtxX_shwr = pfpVtxX_shwr[showers]
+            vtxY_shwr = pfpVtxY_shwr[showers]
+            vtxZ_shwr = pfpVtxZ_shwr[showers]
+            _diff_nue_shower_vtx_elec = np.sqrt(
+                ((vtxX_shwr - pfpVtxX[nues]) * (vtxX_shwr - pfpVtxX[nues])) +
+                ((vtxY_shwr - pfpVtxY[nues]) * (vtxY_shwr - pfpVtxY[nues])) +
+                ((vtxZ_shwr - pfpVtxZ[nues]) * (vtxZ_shwr - pfpVtxZ[nues])))
+            diff_nue_shower_vtx_elec.append(_diff_nue_shower_vtx_elec)
+
+        if(temp_df1.pfoPdg[showers] == 22):
+            vtxX_shwr = pfpVtxX_shwr[showers]
+            vtxY_shwr = pfpVtxY_shwr[showers]
+            vtxZ_shwr = pfpVtxZ_shwr[showers]
+            _diff_nue_shower_vtx_gamma = np.sqrt(
+                ((vtxX_shwr - pfpVtxX[nues]) * (vtxX_shwr - pfpVtxX[nues]))
+                + ((vtxY_shwr - pfpVtxY[nues]) * (vtxY_shwr - pfpVtxY[nues]))
+                + ((vtxZ_shwr - pfpVtxZ[nues]) * (vtxZ_shwr - pfpVtxZ[nues])))
+            diff_nue_shower_vtx_gamma.append(_diff_nue_shower_vtx_gamma)
+
+        if(temp_df1.pfoPdg[showers] == 2212):
+            vtxX_shwr = pfpVtxX_shwr[showers]
+            vtxY_shwr = pfpVtxY_shwr[showers]
+            vtxZ_shwr = pfpVtxZ_shwr[showers]
+            _diff_nue_shower_vtx_prot = np.sqrt(
+                ((vtxX_shwr - pfpVtxX[nues]) * (vtxX_shwr - pfpVtxX[nues]))
+                + ((vtxY_shwr - pfpVtxY[nues]) * (vtxY_shwr - pfpVtxY[nues]))
+                + ((vtxZ_shwr - pfpVtxZ[nues]) * (vtxZ_shwr - pfpVtxZ[nues])))
+            diff_nue_shower_vtx_prot.append(_diff_nue_shower_vtx_prot)
+
+# histogram of nue vtx to shower vtx
+fig_vtx_diff = plt.figure()
+ax = fig_vtx_diff.add_subplot(111)
+mult_vtx = [diff_nue_shower_vtx_elec, diff_nue_shower_vtx_gamma,
+            diff_nue_shower_vtx_prot]
+_ = plt.hist(mult_vtx, 80, (0, 80), histtype='bar', fill=True, stacked=False, color=[
+    'tomato', 'skyblue', 'darkmagenta'], label=['Electron', 'Photon', 'Proton'])
+ax.set_xlabel('Reco: Shower - Nue Vertex [cm]')
+plt.legend()
+plt.show()
 
 
 # print 'Not Matched Nue Hits: ', n_available_hits_nue
