@@ -267,6 +267,25 @@ dir_diff_X_elec = []
 dir_diff_Y_elec = []
 dir_diff_Z_elec = []
 dir_diff_elec = []
+# interaciton modes
+mcEnergy_ccqe = []
+mcEnergy_res = []
+mcEnergy_dis = []
+mcEnergy_coh = []
+pfpEnergy_ccqe = []
+pfpEnergy_res = []
+pfpEnergy_dis = []
+pfpEnergy_coh = []
+interaction_list = []
+mcEnergy_ccqe_elec = []
+mcEnergy_res_elec = []
+mcEnergy_dis_elec = []
+mcEnergy_coh_elec = []
+pfpEnergy_ccqe_elec = []
+pfpEnergy_res_elec = []
+pfpEnergy_dis_elec = []
+pfpEnergy_coh_elec = []
+interaction_list_elec = []
 # hits
 particle_list = []
 pion_pfp_hits = []
@@ -289,6 +308,7 @@ for showers in tqdm(mcPdg_showers.index):
     pfpPdg_shower = pfpPdg_showers[showers]
     pfpHits = pfo_hits_shower[showers]
     mcHits = mc_hits_shower[showers]
+    mcMode = df_pfp_showers.mcMode[showers]
     # let's do some true mc comparisons
     # vertex
     x_diff = pfpVtxX_shwr[showers] - mcVtxX_shwr[showers]
@@ -397,18 +417,77 @@ for showers in tqdm(mcPdg_showers.index):
         dir_diff_Z_elec.append(dir_z_diff_shwr)
         dir_diff_elec.append(dir_dot_shwr)
 
+        # what do the interaction modes look like for the true electrons?
+        # ccqe /cc0pi - is it actually 0 pi?
+        if(mcMode == 0):
+            interaction_list_elec.append('CCQE')
+            mcEnergy_ccqe_elec.append(mc_energy_shower)
+            pfpEnergy_ccqe_elec.append(pfp_energy_shower)
+        # res
+        if(mcMode == 1):
+            interaction_list_elec.append('Resonant')
+            mcEnergy_res_elec.append(mc_energy_shower)
+            pfpEnergy_res_elec.append(pfp_energy_shower)
+        # dis
+        if(mcMode == 2):
+            interaction_list_elec.append('DIS')
+            mcEnergy_dis_elec.append(mc_energy_shower)
+            pfpEnergy_dis_elec.append(pfp_energy_shower)
+        # coh
+        if(mcMode == 3):
+            interaction_list_elec.append('Coherent')
+            mcEnergy_coh_elec.append(mc_energy_shower)
+            pfpEnergy_coh_elec.append(pfp_energy_shower)
+
+    # I'm also going to compare some of the interaction modes in the loop
+    # ccqe /cc0pi - is it actually 0 pi?
+    if(mcMode == 0):
+        interaction_list.append('CCQE')
+        mcEnergy_ccqe.append(mc_energy_shower)
+        pfpEnergy_ccqe.append(pfp_energy_shower)
+    # res
+    if(mcMode == 1):
+        interaction_list.append('Resonant')
+        mcEnergy_res.append(mc_energy_shower)
+        pfpEnergy_res.append(pfp_energy_shower)
+    # dis
+    if(mcMode == 2):
+        interaction_list.append('DIS')
+        mcEnergy_dis.append(mc_energy_shower)
+        pfpEnergy_dis.append(pfp_energy_shower)
+    # coh
+    if(mcMode == 3):
+        interaction_list.append('Coherent')
+        mcEnergy_coh.append(mc_energy_shower)
+        pfpEnergy_coh.append(pfp_energy_shower)
+
 
 print 'Showers Reconstructed: ', len(mcPdg_showers.index)
 print 'True Electron Showers: ', true_pfp_counter
 print 'Not Showers          : ', false_pfp_counter
 print 'True Photon Showers  : ', photon_pfp_counter
+print 'Shower Purity: ', ((true_pfp_counter / len(mcPdg_showers.index)) * 100)
 # what are the particles most reconstructed as a shower?
 particle_counts = Counter(particle_list)
 temp_df = pd.DataFrame.from_dict(particle_counts, orient='index')
 fig_pfp_showers = plt.figure()
 ax = fig_pfp_showers.add_subplot(111)
 temp_df.plot(kind='bar', alpha=0.5, legend=False)
-ax.set_xlabel('True Particle Reconstructed as PFP Shower')
+#ax.set_xlabel('True Particle Reconstructed as PFP Shower')
+
+interaction_counts = Counter(interaction_list)
+temp_df = pd.DataFrame.from_dict(interaction_counts, orient='index')
+fig_pfp_showers = plt.figure()
+ax = fig_pfp_showers.add_subplot(111)
+temp_df.plot(kind='bar', alpha=0.5, legend=False)
+#ax.set_xlabel('Interaction Mode - Reco PFP Shower')
+
+interaction_counts_elec = Counter(interaction_list_elec)
+temp_df = pd.DataFrame.from_dict(interaction_counts_elec, orient='index')
+fig_pfp_showers = plt.figure()
+ax = fig_pfp_showers.add_subplot(111)
+temp_df.plot(kind='bar', alpha=0.5, legend=False)
+#ax.set_xlabel('Interaction Mode - Reco PFP Electrons')
 
 # histogram of mc shower hits
 fig_mc_shower_hits = plt.figure()
