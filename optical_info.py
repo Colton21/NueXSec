@@ -15,11 +15,11 @@ def Pandafy(fileName, tree):
     df = pd.DataFrame(rnp.root2array(fileName, tree))
     return df
 
-infile = 'nue_xsec_extraction.root'
+infile = 'nue_xsec_extraction_2.root'
 infile_tree_name = 'NueXsec/optical_tree'
 
 df = Pandafy(infile, infile_tree_name)
-
+print df.Event
 nEvents = len(df.index)
 # check if data frame is empty
 if(nEvents == 0):
