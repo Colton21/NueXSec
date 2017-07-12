@@ -200,12 +200,24 @@ energy_pfp_shwr = df_pfp_showers.pfoEnergy
 mcEnergy_shwr = []
 mcEnergy_elec = []
 mcEnergy_notElec = []
+mcEnergy_prot = []
+mcEnergy_gamma = []
+mcEnergy_pion = []
+mcEnergy_neut = []
 pfpEnergy_shwr = []
 pfpEnergy_elec = []
 pfpEnergy_notElec = []
+pfpEnergy_prot = []
+pfpEnergy_gamma = []
+pfpEnergy_pion = []
+pfpEnergy_neut = []
 diff_energy_shwr = []
 diff_energy_elec = []
 diff_energy_notElec = []
+diff_energy_prot = []
+diff_energy_pion = []
+diff_energy_neut = []
+diff_energy_gamma = []
 # opening angle
 openangle_pfp_shwr = df_pfp_showers.pfoOpenAngle
 pfpOpenAngle_shwr = []
@@ -228,8 +240,12 @@ vtx_diff_Z_elec = []
 vtx_diff_elec = []
 vtx_Z_pfp_shwr = []
 vtx_Z_pfp_elec = []
+vtx_Z_pfp_prot = []
+vtx_Z_pfp_gamma = []
 vtx_Z_mc_shwr = []
 vtx_Z_mc_elec = []
+vtx_Z_mc_prot = []
+vtx_Z_mc_gamma = []
 # direction
 mcDirX_shwr = df_pfp_showers.mcDirX
 mcDirY_shwr = df_pfp_showers.mcDirY
@@ -308,16 +324,25 @@ for showers in tqdm(mcPdg_showers.index):
             pion_pfp_hits.append(pfpHits)
             pion_mc_hits.append(mcHits)
             pion_ratio_hits.append(float(pfpHits) / float(mcHits))
+            mcEnergy_pion.append(mc_energy_shower)
+            pfpEnergy_pion.append(pfp_energy_shower)
+            diff_energy_pion.append(pfp_energy_shower - mc_energy_shower)
         if(mcPdg_shower == 2112):
             particle_list.append('Neutron')
             neutron_pfp_hits.append(pfpHits)
             neutron_mc_hits.append(mcHits)
             neutron_ratio_hits.append(float(pfpHits) / float(mcHits))
+            mcEnergy_neut.append(mc_energy_shower)
+            pfpEnergy_neut.append(pfp_energy_shower)
+            diff_energy_neut.append(pfp_energy_shower - mc_energy_shower)
         if(mcPdg_shower == 2212):
             particle_list.append('Proton')
             proton_pfp_hits.append(pfpHits)
             proton_mc_hits.append(mcHits)
             proton_ratio_hits.append(float(pfpHits) / float(mcHits))
+            mcEnergy_prot.append(mc_energy_shower)
+            pfpEnergy_prot.append(pfp_energy_shower)
+            diff_energy_prot.append(pfp_energy_shower - mc_energy_shower)
     if(mcPdg_shower == 22):
         photon_pfp_counter = photon_pfp_counter + 1
         mcEnergy_notElec.append(mc_energy_shower)
@@ -327,6 +352,9 @@ for showers in tqdm(mcPdg_showers.index):
         photon_pfp_hits.append(pfpHits)
         photon_mc_hits.append(mcHits)
         photon_ratio_hits.append(float(pfpHits) / float(mcHits))
+        mcEnergy_gamma.append(mc_energy_shower)
+        pfpEnergy_gamma.append(pfp_energy_shower)
+        diff_energy_gamma.append(pfp_energy_shower - mc_energy_shower)
     if(mcPdg_shower == pfpPdg_shower):
         # print 'Electron Num Unmatched Hits: ', available_hits_shower[showers]
         # print 'Electron: ', pfo_hits_shower[showers]
@@ -461,27 +489,31 @@ plt.show()
 # histograms for energy
 fig_energy_mc = plt.figure()
 ax = fig_energy_mc.add_subplot(111)
-mult_eng_mc = [mcEnergy_shwr, mcEnergy_elec, mcEnergy_notElec]
-_ = plt.hist(mult_eng_mc, 80, (0, 2), histtype='bar', fill=True,
-             color=['tomato', 'goldenrod', 'darkmagenta'], label=['All Showers', 'Electron', 'Not Electron'])
+#mult_eng_mc = [mcEnergy_shwr, mcEnergy_elec, mcEnergy_notElec]
+mult_eng_mc = [mcEnergy_pion, mcEnergy_neut,
+               mcEnergy_prot, mcEnergy_gamma, mcEnergy_elec]
+_ = plt.hist(mult_eng_mc, 80, (0, 2), histtype='bar', fill=True, stacked=True,
+             color=['wheat', 'goldenrod', 'darkmagenta', 'skyblue', 'tomato'], label=['Pion', 'Neutron', 'Proton', 'Photon', 'Electron'])
 ax.set_xlabel('True MC Shower Momentum [GeV]')
 plt.legend()
 plt.show()
 
 fig_energy_pfp = plt.figure()
 ax = fig_energy_pfp.add_subplot(111)
-mult_eng_pfp = [pfpEnergy_shwr, pfpEnergy_elec, pfpEnergy_notElec]
-_ = plt.hist(mult_eng_pfp, 40, (0, 2), histtype='bar', fill=True,
-             color=['tomato', 'goldenrod', 'darkmagenta'], label=['All Showers', 'Electron', 'Not Electron'])
+mult_eng_pfp = [pfpEnergy_pion, pfpEnergy_neut,
+                pfpEnergy_prot, pfpEnergy_gamma, mcEnergy_elec]
+_ = plt.hist(mult_eng_pfp, 40, (0, 2), histtype='bar', fill=True, stacked=True,
+             color=['wheat', 'goldenrod', 'darkmagenta', 'skyblue', 'tomato'], label=['Pion', 'Neutron', 'Proton', 'Photon', 'Electron'])
 ax.set_xlabel('Reco Shower Momentum [GeV]')
 plt.legend()
 plt.show()
 
 fig_energy_diff = plt.figure()
 ax = fig_energy_diff.add_subplot(111)
-mult_eng_diff = [diff_energy_shwr, diff_energy_elec, diff_energy_notElec]
-_ = plt.hist(mult_eng_diff, 40, (-2, 2), histtype='bar', fill=True,
-             color=['tomato', 'goldenrod', 'darkmagenta'], label=['All Showers', 'Electron', 'Not Electron'])
+mult_eng_diff = [diff_energy_pion, diff_energy_neut,
+                 diff_energy_prot, diff_energy_gamma, diff_energy_elec]
+_ = plt.hist(mult_eng_diff, 40, (-2, 2), histtype='bar', fill=True, stacked=True,
+             color=['wheat', 'goldenrod', 'darkmagenta', 'skyblue', 'tomato'], label=['Pion', 'Neutron', 'Proton', 'Photon', 'Electron'])
 ax.set_xlabel('Reco - True Shower Momentum [GeV]')
 plt.legend()
 plt.show()
