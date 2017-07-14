@@ -303,12 +303,26 @@ photon_ratio_hits = []
 electron_pfp_hits = []
 electron_mc_hits = []
 electron_ratio_hits = []
+# completeness
+#nMatchedHits / nMCHits
+pfp_completeness = df_pfp_showers.completeness
+pion_completeness = []
+neutron_completeness = []
+proton_completeness = []
+photon_completeness = []
+electron_completeness = []
+ccqe_completeness = []
+res_completeness = []
+dis_completeness = []
+coh_completeness = []
+# Begin looping showers
 for showers in tqdm(mcPdg_showers.index):
     mcPdg_shower = mcPdg_showers[showers]
     pfpPdg_shower = pfpPdg_showers[showers]
     pfpHits = pfo_hits_shower[showers]
     mcHits = mc_hits_shower[showers]
     mcMode = df_pfp_showers.mcMode[showers]
+    this_completeness = pfp_completeness[showers]
     # let's do some true mc comparisons
     # vertex
     x_diff = pfpVtxX_shwr[showers] - mcVtxX_shwr[showers]
@@ -340,6 +354,7 @@ for showers in tqdm(mcPdg_showers.index):
     mcEnergy_shwr.append(mc_energy_shower)
     pfpEnergy_shwr.append(pfp_energy_shower)
     diff_energy_shwr.append(pfp_energy_shower - mc_energy_shower)
+
     if(mcPdg_shower != pfpPdg_shower and mcPdg_shower != 22):
         false_pfp_counter = false_pfp_counter + 1
         mcEnergy_notElec.append(mc_energy_shower)
@@ -353,6 +368,7 @@ for showers in tqdm(mcPdg_showers.index):
             mcEnergy_pion.append(mc_energy_shower)
             pfpEnergy_pion.append(pfp_energy_shower)
             diff_energy_pion.append(pfp_energy_shower - mc_energy_shower)
+            pion_completeness.append(this_completeness)
         if(mcPdg_shower == 2112):
             particle_list.append('Neutron')
             neutron_pfp_hits.append(pfpHits)
@@ -361,6 +377,7 @@ for showers in tqdm(mcPdg_showers.index):
             mcEnergy_neut.append(mc_energy_shower)
             pfpEnergy_neut.append(pfp_energy_shower)
             diff_energy_neut.append(pfp_energy_shower - mc_energy_shower)
+            neutron_completeness.append(this_completeness)
         if(mcPdg_shower == 2212):
             particle_list.append('Proton')
             proton_pfp_hits.append(pfpHits)
@@ -372,6 +389,7 @@ for showers in tqdm(mcPdg_showers.index):
             vtx_X_pfp_prot.append(pfpVtxX_shwr[showers])
             vtx_Y_pfp_prot.append(pfpVtxY_shwr[showers])
             vtx_Z_pfp_prot.append(pfpVtxZ_shwr[showers])
+            proton_completeness.append(this_completeness)
     if(mcPdg_shower == 22):
         photon_pfp_counter = photon_pfp_counter + 1
         mcEnergy_notElec.append(mc_energy_shower)
@@ -387,6 +405,7 @@ for showers in tqdm(mcPdg_showers.index):
         vtx_X_pfp_gamma.append(pfpVtxX_shwr[showers])
         vtx_Y_pfp_gamma.append(pfpVtxY_shwr[showers])
         vtx_Z_pfp_gamma.append(pfpVtxZ_shwr[showers])
+        photon_completeness.append(this_completeness)
 
     if(mcPdg_shower == pfpPdg_shower):
         # print 'Electron Num Unmatched Hits: ', available_hits_shower[showers]
@@ -416,6 +435,7 @@ for showers in tqdm(mcPdg_showers.index):
         dir_diff_Y_elec.append(dir_y_diff_shwr)
         dir_diff_Z_elec.append(dir_z_diff_shwr)
         dir_diff_elec.append(dir_dot_shwr)
+        electron_completeness.append(this_completeness)
 
         # what do the interaction modes look like for the true electrons?
         # ccqe /cc0pi - is it actually 0 pi?
@@ -445,21 +465,25 @@ for showers in tqdm(mcPdg_showers.index):
         interaction_list.append('CCQE')
         mcEnergy_ccqe.append(mc_energy_shower)
         pfpEnergy_ccqe.append(pfp_energy_shower)
+        ccqe_completeness.append(this_completeness)
     # res
     if(mcMode == 1):
         interaction_list.append('Resonant')
         mcEnergy_res.append(mc_energy_shower)
         pfpEnergy_res.append(pfp_energy_shower)
+        res_completeness.append(this_completeness)
     # dis
     if(mcMode == 2):
         interaction_list.append('DIS')
         mcEnergy_dis.append(mc_energy_shower)
         pfpEnergy_dis.append(pfp_energy_shower)
+        dis_completeness.append(this_completeness)
     # coh
     if(mcMode == 3):
         interaction_list.append('Coherent')
         mcEnergy_coh.append(mc_energy_shower)
         pfpEnergy_coh.append(pfp_energy_shower)
+        coh_completeness.append(this_completeness)
 
 
 print 'Showers Reconstructed: ', len(mcPdg_showers.index)
@@ -612,6 +636,27 @@ ax.set_xlabel('Reco - True Shower Momentum [GeV]')
 plt.legend()
 plt.show()
 
+# histograms for energy in terms of interaction modes
+fig_energy_mode = plt.figure()
+ax = fig_energy_mode.add_subplot(111)
+mult_eng_mc_mode = [mcEnergy_ccqe, mcEnergy_res,
+                    mcEnergy_dis, mcEnergy_coh]
+_ = plt.hist(mult_eng_mc_mode, 40, (0, 2), histtype='bar', fill=True, stacked=True,
+             color=['wheat', 'goldenrod', 'darkmagenta', 'skyblue'], label=['CCQE', 'Resonant', 'DIS', 'Coherent'])
+ax.set_xlabel('True Shower Momentum [GeV]')
+plt.legend()
+plt.show()
+
+fig_energy_mode = plt.figure()
+ax = fig_energy_mode.add_subplot(111)
+mult_eng_pfp_mode = [pfpEnergy_ccqe, pfpEnergy_res,
+                     pfpEnergy_dis, pfpEnergy_coh]
+_ = plt.hist(mult_eng_pfp_mode, 40, (0, 2), histtype='bar', fill=True, stacked=True,
+             color=['wheat', 'goldenrod', 'darkmagenta', 'skyblue'], label=['CCQE', 'Resonant', 'DIS', 'Coherent'])
+ax.set_xlabel('Reco Shower Momentum [GeV]')
+plt.legend()
+plt.show()
+
 # vtx and energy histograms
 fig_shower_hits_2d = plt.figure()
 ax = fig_shower_hits_2d.add_subplot(111)
@@ -751,6 +796,27 @@ ax = fig_dir_elec_dot.add_subplot(111)
 _ = plt.hist(dir_diff_elec, 40, (0, 180), histtype='bar',
              fill=True, stacked=True, color='tomato', label='Dot Product')
 ax.set_xlabel('Electron Reco:True Theta')
+plt.legend()
+plt.show()
+
+# histograms completeness
+fig_energy_pfp = plt.figure()
+ax = fig_energy_pfp.add_subplot(111)
+mult_eng_pfp = [pion_completeness, neutron_completeness,
+                proton_completeness, photon_completeness, electron_completeness]
+_ = plt.hist(mult_eng_pfp, 40, (0, 1), histtype='bar', fill=True, stacked=True, color=[
+             'wheat', 'goldenrod', 'darkmagenta', 'skyblue', 'tomato'], label=['Pion', 'Neutron', 'Proton', 'Photon', 'Electron'])
+ax.set_xlabel('Completeness - Matched / MC Hits')
+plt.legend()
+plt.show()
+
+fig_completeness_mode = plt.figure()
+ax = fig_completeness_mode.add_subplot(111)
+mult_dir = [ccqe_completeness, res_completeness,
+            dis_completeness, coh_completeness]
+_ = plt.hist(mult_dir, 40, (0, 1), histtype='bar', fill=True, stacked=True, color=[
+             'wheat', 'goldenrod', 'darkmagenta', 'skyblue'], label=['CCQE', 'Resonant', 'DIS', 'Coherent'])
+ax.set_xlabel('Completeness - Matched / MC Hits')
 plt.legend()
 plt.show()
 
