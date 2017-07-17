@@ -201,10 +201,6 @@ plt.close()
 # how often are showers actually showers?
 nPfpShowers = 0
 df_pfp_showers = getPfpShower(df_valid_pfpart)
-# for particle in df_pfp_showers.index:
-# print df_pfp_showers.pfoPdg[particle], df_pfp_showers.mcPdg[particle],
-# df_pfp_showers.mcNuPdg[particle]
-
 mcPdg_showers = df_pfp_showers.mcPdg
 pfpPdg_showers = df_pfp_showers.pfoPdg
 available_hits_shower = df_pfp_showers.nAvailableHits
@@ -213,6 +209,7 @@ mc_hits_shower = df_pfp_showers.nMCHits
 false_pfp_counter = 0
 true_pfp_counter = 0
 photon_pfp_counter = 0
+cosmic_pfp_counter = 0
 
 
 # energy
@@ -225,6 +222,7 @@ mcEnergy_prot = []
 mcEnergy_gamma = []
 mcEnergy_pion = []
 mcEnergy_neut = []
+mcEnergy_cosmic = []
 pfpEnergy_shwr = []
 pfpEnergy_elec = []
 pfpEnergy_notElec = []
@@ -232,6 +230,7 @@ pfpEnergy_prot = []
 pfpEnergy_gamma = []
 pfpEnergy_pion = []
 pfpEnergy_neut = []
+pfpEnergy_cosmic = []
 diff_energy_shwr = []
 diff_energy_elec = []
 diff_energy_notElec = []
@@ -239,6 +238,7 @@ diff_energy_prot = []
 diff_energy_pion = []
 diff_energy_neut = []
 diff_energy_gamma = []
+diff_energy_cosmic = []
 # opening angle
 openangle_pfp_shwr = df_pfp_showers.pfoOpenAngle
 pfpOpenAngle_shwr = []
@@ -263,12 +263,15 @@ vtx_Z_pfp_shwr = []
 vtx_X_pfp_elec = []
 vtx_X_pfp_prot = []
 vtx_X_pfp_gamma = []
+vtx_X_pfp_cosmic = []
 vtx_Y_pfp_elec = []
 vtx_Y_pfp_prot = []
 vtx_Y_pfp_gamma = []
+vtx_Y_pfp_cosmic = []
 vtx_Z_pfp_elec = []
 vtx_Z_pfp_prot = []
 vtx_Z_pfp_gamma = []
+vtx_Z_pfp_cosmic = []
 vtx_Z_mc_shwr = []
 vtx_Z_mc_elec = []
 vtx_Z_mc_prot = []
@@ -324,6 +327,9 @@ photon_ratio_hits = []
 electron_pfp_hits = []
 electron_mc_hits = []
 electron_ratio_hits = []
+cosmic_pfp_hits = []
+cosmic_mc_hits = []
+cosmic_ratio_hits = []
 # completeness
 # nMatchedHits / nMCHits
 pfp_completeness = df_pfp_showers.completeness
@@ -332,6 +338,7 @@ neutron_completeness = []
 proton_completeness = []
 photon_completeness = []
 electron_completeness = []
+cosmic_completeness = []
 ccqe_completeness = []
 res_completeness = []
 dis_completeness = []
@@ -412,9 +419,21 @@ for showers in tqdm(mcPdg_showers.index):
             vtx_Z_pfp_prot.append(pfpVtxZ_shwr[showers])
             proton_completeness.append(this_completeness)
 
-    if(mcPdg_shower == 13 or mcPdg_shower == -13):
-        if(cosmic_file == True):
-            particle_list.append('Muon')
+    # if mcNuPdg == 0 then it's not from a neutrino!
+    if(cosmic_file == 'True'):
+        if(df_pfp_showers.mcNuPdg[showers] == 0):
+            particle_list.append('Cosmic')
+            cosmic_pfp_counter = cosmic_pfp_counter + 1
+            mcEnergy_cosmic.append(mc_energy_shower)
+            pfpEnergy_cosmic.append(pfp_energy_shower)
+            diff_energy_cosmic.append(pfp_energy_shower - mc_energy_shower)
+            cosmic_pfp_hits.append(pfpHits)
+            cosmic_mc_hits.append(mcHits)
+            cosmic_ratio_hits.append(float(pfpHits) / float(mcHits))
+            vtx_X_pfp_cosmic.append(pfpVtxX_shwr[showers])
+            vtx_Y_pfp_cosmic.append(pfpVtxY_shwr[showers])
+            vtx_Z_pfp_cosmic.append(pfpVtxZ_shwr[showers])
+            cosmic_completeness.append(this_completeness)
     if(mcPdg_shower == 22):
         photon_pfp_counter = photon_pfp_counter + 1
         mcEnergy_notElec.append(mc_energy_shower)
@@ -515,6 +534,7 @@ print 'Showers Reconstructed: ', len(mcPdg_showers.index)
 print 'True Electron Showers: ', true_pfp_counter
 print 'Not Showers          : ', false_pfp_counter
 print 'True Photon Showers  : ', photon_pfp_counter
+print 'True Cosmic Showers  : ', cosmic_pfp_counter
 # what are the particles most reconstructed as a shower?
 particle_counts = Counter(particle_list)
 temp_plot_df = pd.DataFrame.from_dict(particle_counts, orient='index')
@@ -540,10 +560,16 @@ temp_plot_df.plot(kind='bar', alpha=0.5, legend=False)
 # histogram of mc shower hits
 fig_mc_shower_hits = plt.figure()
 ax = fig_mc_shower_hits.add_subplot(111)
-mult_mc = [pion_mc_hits, neutron_mc_hits, proton_mc_hits,
-           photon_mc_hits, electron_mc_hits]
-_ = plt.hist(mult_mc, 30, (0, 3500), histtype='bar', fill=True, stacked=True, color=[
-             'wheat', 'goldenrod', 'darkmagenta', 'skyblue', 'tomato'], label=['Pion', 'Neutron', 'Proton', 'Photon', 'Electron'])
+if(cosmic_file == 'False'):
+    mult_mc = [pion_mc_hits, neutron_mc_hits, proton_mc_hits,
+               photon_mc_hits, electron_mc_hits]
+    _ = plt.hist(mult_mc, 30, (0, 3500), histtype='bar', fill=True, stacked=True, color=[
+        'wheat', 'goldenrod', 'darkmagenta', 'skyblue', 'tomato'], label=['Pion', 'Neutron', 'Proton', 'Photon', 'Electron'])
+if(cosmic_file == 'True'):
+    mult_mc = [pion_mc_hits, neutron_mc_hits, proton_mc_hits,
+               photon_mc_hits, electron_mc_hits, cosmic_mc_hits]
+    _ = plt.hist(mult_mc, 30, (0, 3500), histtype='bar', fill=True, stacked=True, color=[
+        'wheat', 'goldenrod', 'darkmagenta', 'skyblue', 'tomato', 'darkslategray'], label=['Pion', 'Neutron', 'Proton', 'Photon', 'Electron', 'Cosmics'])
 ax.set_xlabel('True MC Hits')
 plt.legend()
 fig_mc_shower_hits.savefig('true_hits_type.pdf')
@@ -552,10 +578,16 @@ plt.close()
 # histogram of pfp shower hits
 fig_pfp_shower_hits = plt.figure()
 ax = fig_pfp_shower_hits.add_subplot(111)
-mult_pfp = [pion_pfp_hits, neutron_pfp_hits, proton_pfp_hits,
-            photon_pfp_hits, electron_pfp_hits]
-_ = plt.hist(mult_pfp, 30, (0, 3500), histtype='bar', fill=True, stacked=True, color=[
-             'wheat', 'goldenrod', 'darkmagenta', 'skyblue', 'tomato'], label=['Pion', 'Neutron', 'Proton', 'Photon', 'Electron'])
+if(cosmic_file == 'False'):
+    mult_pfp = [pion_pfp_hits, neutron_pfp_hits, proton_pfp_hits,
+                photon_pfp_hits, electron_pfp_hits]
+    _ = plt.hist(mult_pfp, 30, (0, 3500), histtype='bar', fill=True, stacked=True, color=[
+        'wheat', 'goldenrod', 'darkmagenta', 'skyblue', 'tomato'], label=['Pion', 'Neutron', 'Proton', 'Photon', 'Electron'])
+if(cosmic_file == 'True'):
+    mult_pfp = [pion_pfp_hits, neutron_pfp_hits, proton_pfp_hits,
+                photon_pfp_hits, electron_pfp_hits, cosmic_pfp_hits]
+    _ = plt.hist(mult_pfp, 30, (0, 3500), histtype='bar', fill=True, stacked=True, color=[
+        'wheat', 'goldenrod', 'darkmagenta', 'skyblue', 'tomato', 'darkslategray'], label=['Pion', 'Neutron', 'Proton', 'Photon', 'Electron', 'Cosmics'])
 ax.set_xlabel('Reconstructed Hits')
 plt.legend()
 fig_pfp_shower_hits.savefig('reco_hits_type.pdf')
@@ -564,10 +596,16 @@ plt.close()
 # histogram of ratio pfp/MC shower hits
 fig_pfp_shower_hits = plt.figure()
 ax = fig_pfp_shower_hits.add_subplot(111)
-mult_ratio = [pion_ratio_hits, neutron_ratio_hits,
-              proton_ratio_hits, photon_ratio_hits, electron_ratio_hits]
-_ = plt.hist(mult_ratio, 30, (0, 4), histtype='bar', fill=True, stacked=True, color=[
-             'wheat', 'goldenrod', 'darkmagenta', 'skyblue', 'tomato'], label=['Pion', 'Neutron', 'Proton', 'Photon', 'Electron'])
+if(cosmic_file == 'False'):
+    mult_ratio = [pion_ratio_hits, neutron_ratio_hits,
+                  proton_ratio_hits, photon_ratio_hits, electron_ratio_hits]
+    _ = plt.hist(mult_ratio, 30, (0, 4), histtype='bar', fill=True, stacked=True, color=[
+        'wheat', 'goldenrod', 'darkmagenta', 'skyblue', 'tomato'], label=['Pion', 'Neutron', 'Proton', 'Photon', 'Electron'])
+if(cosmic_file == 'True'):
+    mult_ratio = [pion_ratio_hits, neutron_ratio_hits,
+                  proton_ratio_hits, photon_ratio_hits, electron_ratio_hits, cosmic_ratio_hits]
+    _ = plt.hist(mult_ratio, 30, (0, 4), histtype='bar', fill=True, stacked=True, color=[
+        'wheat', 'goldenrod', 'darkmagenta', 'skyblue', 'tomato', 'darkslategray'], label=['Pion', 'Neutron', 'Proton', 'Photon', 'Electron', 'Cosmics'])
 ax.set_xlabel('Ratio Reco / MC Hits')
 plt.legend()
 fig_pfp_shower_hits.savefig('ratio_hits_type.pdf')
@@ -626,6 +664,17 @@ plt.colorbar()
 fig_shower_hits_2d.savefig('photon_ratio_hits_true_hits.pdf')
 plt.close()
 
+if(cosmic_file == 'True'):
+    fig_shower_hits_2d = plt.figure()
+    ax = fig_shower_hits_2d.add_subplot(111)
+    _ = plt.hist2d(cosmic_mc_hits, cosmic_ratio_hits,
+                   20, cmap=cm.summer, norm=LogNorm())
+    ax.set_xlabel('Cosmic True MC Hits')
+    ax.set_ylabel('Cosmic Ratio Reco / MC Hits')
+    plt.colorbar()
+    fig_shower_hits_2d.savefig('cosmic_ratio_hits_true_hits.pdf')
+    plt.close()
+
 # 2d histogram of ratio vs true hits
 fig_shower_hits_2d = plt.figure()
 ax = fig_shower_hits_2d.add_subplot(111)
@@ -640,10 +689,16 @@ plt.close()
 # histograms for energy
 fig_energy_mc = plt.figure()
 ax = fig_energy_mc.add_subplot(111)
-mult_eng_mc = [mcEnergy_pion, mcEnergy_neut,
-               mcEnergy_prot, mcEnergy_gamma, mcEnergy_elec]
-_ = plt.hist(mult_eng_mc, 80, (0, 2), histtype='bar', fill=True, stacked=True,
-             color=['wheat', 'goldenrod', 'darkmagenta', 'skyblue', 'tomato'], label=['Pion', 'Neutron', 'Proton', 'Photon', 'Electron'])
+if(cosmic_file == 'False'):
+    mult_eng_mc = [mcEnergy_pion, mcEnergy_neut,
+                   mcEnergy_prot, mcEnergy_gamma, mcEnergy_elec]
+    _ = plt.hist(mult_eng_mc, 80, (0, 2), histtype='bar', fill=True, stacked=True,
+                 color=['wheat', 'goldenrod', 'darkmagenta', 'skyblue', 'tomato'], label=['Pion', 'Neutron', 'Proton', 'Photon', 'Electron'])
+if(cosmic_file == 'True'):
+    mult_eng_mc = [mcEnergy_pion, mcEnergy_neut,
+                   mcEnergy_prot, mcEnergy_gamma, mcEnergy_elec, mcEnergy_cosmic]
+    _ = plt.hist(mult_eng_mc, 80, (0, 2), histtype='bar', fill=True, stacked=True,
+                 color=['wheat', 'goldenrod', 'darkmagenta', 'skyblue', 'tomato', 'darkslategray'], label=['Pion', 'Neutron', 'Proton', 'Photon', 'Electron', 'Cosmics'])
 ax.set_xlabel('True MC Shower Momentum [GeV]')
 plt.legend()
 fig_energy_mc.savefig('true_shower_momentum_type.pdf')
@@ -651,10 +706,16 @@ plt.close()
 
 fig_energy_pfp = plt.figure()
 ax = fig_energy_pfp.add_subplot(111)
-mult_eng_pfp = [pfpEnergy_pion, pfpEnergy_neut,
-                pfpEnergy_prot, pfpEnergy_gamma, mcEnergy_elec]
-_ = plt.hist(mult_eng_pfp, 40, (0, 2), histtype='bar', fill=True, stacked=True,
-             color=['wheat', 'goldenrod', 'darkmagenta', 'skyblue', 'tomato'], label=['Pion', 'Neutron', 'Proton', 'Photon', 'Electron'])
+if(cosmic_file == 'False'):
+    mult_eng_pfp = [pfpEnergy_pion, pfpEnergy_neut,
+                    pfpEnergy_prot, pfpEnergy_gamma, pfpEnergy_elec]
+    _ = plt.hist(mult_eng_pfp, 40, (0, 2), histtype='bar', fill=True, stacked=True,
+                 color=['wheat', 'goldenrod', 'darkmagenta', 'skyblue', 'tomato'], label=['Pion', 'Neutron', 'Proton', 'Photon', 'Electron'])
+if(cosmic_file == 'True'):
+    mult_eng_pfp = [pfpEnergy_pion, pfpEnergy_neut,
+                    pfpEnergy_prot, pfpEnergy_gamma, pfpEnergy_elec, pfpEnergy_cosmic]
+    _ = plt.hist(mult_eng_pfp, 40, (0, 2), histtype='bar', fill=True, stacked=True,
+                 color=['wheat', 'goldenrod', 'darkmagenta', 'skyblue', 'tomato', 'darkslategray'], label=['Pion', 'Neutron', 'Proton', 'Photon', 'Electron', 'Cosmics'])
 ax.set_xlabel('Reco Shower Momentum [GeV]')
 plt.legend()
 fig_energy_pfp.savefig('reco_shower_momentum_type.pdf')
@@ -662,10 +723,16 @@ plt.close()
 
 fig_energy_diff = plt.figure()
 ax = fig_energy_diff.add_subplot(111)
-mult_eng_diff = [diff_energy_pion, diff_energy_neut,
-                 diff_energy_prot, diff_energy_gamma, diff_energy_elec]
-_ = plt.hist(mult_eng_diff, 40, (-2, 2), histtype='bar', fill=True, stacked=True,
-             color=['wheat', 'goldenrod', 'darkmagenta', 'skyblue', 'tomato'], label=['Pion', 'Neutron', 'Proton', 'Photon', 'Electron'])
+if(cosmic_file == 'False'):
+    mult_eng_diff = [diff_energy_pion, diff_energy_neut,
+                     diff_energy_prot, diff_energy_gamma, diff_energy_elec]
+    _ = plt.hist(mult_eng_diff, 40, (-2, 2), histtype='bar', fill=True, stacked=True,
+                 color=['wheat', 'goldenrod', 'darkmagenta', 'skyblue', 'tomato'], label=['Pion', 'Neutron', 'Proton', 'Photon', 'Electron'])
+if(cosmic_file == 'True'):
+    mult_eng_diff = [diff_energy_pion, diff_energy_neut,
+                     diff_energy_prot, diff_energy_gamma, diff_energy_elec, diff_energy_cosmic]
+    _ = plt.hist(mult_eng_diff, 40, (-2, 2), histtype='bar', fill=True, stacked=True,
+                 color=['wheat', 'goldenrod', 'darkmagenta', 'skyblue', 'tomato', 'darkslategray'], label=['Pion', 'Neutron', 'Proton', 'Photon', 'Electron', 'Cosmics'])
 ax.set_xlabel('Reco - True Shower Momentum [GeV]')
 plt.legend()
 fig_energy_diff.savefig('reco-true_shower_momentum_type.pdf')
@@ -773,7 +840,7 @@ ax.set_xlabel('True Electron Vtx Z')
 ax.set_ylabel('Reco - True Electron Vertex')
 plt.colorbar()
 fig_shower_hits_2d.savefig('reco-true_electron_vtx_true_vtxZ.pdf')
-# plt.show()
+plt.close()
 
 # histograms for vtx
 fig_vtx_diff_shwr = plt.figure()
@@ -785,7 +852,7 @@ _ = plt.hist(mult_vtx, 80, (-80, 80), histtype='bar', fill=True, stacked=True, c
 ax.set_xlabel('Reco - True Shower Vertex [cm]')
 plt.legend()
 fig_vtx_diff_shwr.savefig('reco-true_shower_vtx.pdf')
-# plt.show()
+plt.close()
 
 # histograms for vtx, true electron only
 fig_vtx_diff_elec = plt.figure()
@@ -797,7 +864,7 @@ _ = plt.hist(mult_vtx, 80, (-80, 80), histtype='bar', fill=True, stacked=True, c
 ax.set_xlabel('Reco - True Shower (Electron) Vertex [cm]')
 plt.legend()
 fig_vtx_diff_elec.savefig('reco-true_electron_vtx.pdf')
-# plt.show()
+plt.close()
 
 # histograms for vtx - total distances
 fig_vtx_diff_shwr_total = plt.figure()
@@ -808,7 +875,7 @@ _ = plt.hist(mult_vtx, 80, (0, 80), histtype='bar', fill=True, stacked=False, co
 ax.set_xlabel('Reco - True Shower Vertex Total Distance[cm]')
 plt.legend()
 fig_vtx_diff_shwr_total.savefig('reco-true_shower_vtx_total.pdf')
-# plt.show()
+plt.close()
 
 # histograms for direction
 fig_dir_shwr_diff = plt.figure()
@@ -820,7 +887,7 @@ _ = plt.hist(mult_dir_shwr, 20, (-2, 2), histtype='bar', fill=True, stacked=True
 ax.set_xlabel('Reco - True Shower Direction')
 plt.legend()
 fig_dir_shwr_diff.savefig('shower_reco-true_direction.pdf')
-# plt.show()
+plt.close()
 
 fig_dir_shwr_dot = plt.figure()
 ax = fig_dir_shwr_dot.add_subplot(111)
@@ -829,7 +896,7 @@ _ = plt.hist(dir_diff_shwr, 40, (0, 180), histtype='bar',
 ax.set_xlabel('Shower Reco:True Theta')
 plt.legend()
 fig_dir_shwr_dot.savefig('shower_reco_true_dot_dir.pdf')
-# plt.show()
+plt.close()
 
 fig_dir_elec_diff = plt.figure()
 ax = fig_dir_elec_diff.add_subplot(111)
@@ -840,7 +907,7 @@ _ = plt.hist(mult_dir_elec, 20, (-2, 2), histtype='bar', fill=True, stacked=True
 ax.set_xlabel('Reco - True Electron Direction')
 plt.legend()
 fig_dir_elec_diff.savefig('reco-true_electron_direction.pdf')
-# plt.show()
+plt.close()
 
 fig_dir_elec_dot = plt.figure()
 ax = fig_dir_elec_dot.add_subplot(111)
@@ -849,19 +916,25 @@ _ = plt.hist(dir_diff_elec, 40, (0, 180), histtype='bar',
 ax.set_xlabel('Electron Reco:True Theta')
 plt.legend()
 fig_dir_elec_dot.savefig('electron_reco_true_dot_dir.pdf')
-# plt.show()
+plt.close()
 
 # histograms completeness
 fig_energy_pfp = plt.figure()
 ax = fig_energy_pfp.add_subplot(111)
-mult_eng_pfp = [pion_completeness, neutron_completeness,
-                proton_completeness, photon_completeness, electron_completeness]
-_ = plt.hist(mult_eng_pfp, 40, (0, 1), histtype='bar', fill=True, stacked=True, color=[
-             'wheat', 'goldenrod', 'darkmagenta', 'skyblue', 'tomato'], label=['Pion', 'Neutron', 'Proton', 'Photon', 'Electron'])
+if(cosmic_file == 'False'):
+    mult_eng_pfp = [pion_completeness, neutron_completeness,
+                    proton_completeness, photon_completeness, electron_completeness]
+    _ = plt.hist(mult_eng_pfp, 40, (0, 1), histtype='bar', fill=True, stacked=True, color=[
+        'wheat', 'goldenrod', 'darkmagenta', 'skyblue', 'tomato'], label=['Pion', 'Neutron', 'Proton', 'Photon', 'Electron'])
+if(cosmic_file == 'True'):
+    mult_eng_pfp = [pion_completeness, neutron_completeness,
+                    proton_completeness, photon_completeness, electron_completeness, cosmic_completeness]
+    _ = plt.hist(mult_eng_pfp, 40, (0, 1), histtype='bar', fill=True, stacked=True, color=[
+        'wheat', 'goldenrod', 'darkmagenta', 'skyblue', 'tomato', 'darkslategray'], label=['Pion', 'Neutron', 'Proton', 'Photon', 'Electron', 'Cosmics'])
 ax.set_xlabel('Completeness - Matched / MC Hits')
-plt.legend()
-fig_energy_pfp.savefig('shower-completeness_type.pdf')
-# plt.show()
+plt.legend(loc='upper left')
+fig_energy_pfp.savefig('shower_completeness_type.pdf')
+plt.close()
 
 fig_completeness_mode = plt.figure()
 ax = fig_completeness_mode.add_subplot(111)
@@ -870,9 +943,9 @@ mult_dir = [ccqe_completeness, res_completeness,
 _ = plt.hist(mult_dir, 40, (0, 1), histtype='bar', fill=True, stacked=True, color=[
              'wheat', 'goldenrod', 'darkmagenta', 'skyblue'], label=['CCQE', 'Resonant', 'DIS', 'Coherent'])
 ax.set_xlabel('Completeness - Matched / MC Hits')
-plt.legend()
+plt.legend(loc='upper left')
 fig_completeness_mode.savefig('shower_completeness_mode.pdf')
-# plt.show()
+plt.close()
 
 ####################################
 # how often are nues actually nues?
@@ -949,13 +1022,23 @@ for nues in tqdm(mcPdg_nue.index):
 fig_vtx_diff = plt.figure()
 ax = fig_vtx_diff.add_subplot(111)
 mult_vtx = [vtx_diff_X, vtx_diff_Y,
-            vtx_diff_Z, vtx_diff]
+            vtx_diff_Z]
 _ = plt.hist(mult_vtx, 80, (-80, 80), histtype='bar', fill=True, stacked=True, color=[
-             'tomato', 'goldenrod', 'darkmagenta', 'skyblue'], label=['X', 'Y', 'Z', 'Total'])
+             'tomato', 'goldenrod', 'darkmagenta'], label=['X', 'Y', 'Z'])
 ax.set_xlabel('Reco - True Nue Vertex [cm]')
 plt.legend()
 fig_vtx_diff.savefig('reco-true_nue_vtx.pdf')
-# plt.show()
+plt.close()
+
+fig_vtx_diff = plt.figure()
+ax = fig_vtx_diff.add_subplot(111)
+mult_vtx = [vtx_diff]
+_ = plt.hist(mult_vtx, 80, (0, 160), histtype='bar', fill=True, stacked=True, color=[
+             'skyblue'], label=['Total'])
+ax.set_xlabel('Reco - True Nue Vertex [cm]')
+plt.legend()
+fig_vtx_diff.savefig('reco-true_nue_vtx_total.pdf')
+plt.close()
 
 ################################################
 # direction isn't being filled for pfp properly...
@@ -1034,8 +1117,11 @@ _ = plt.hist(mult_vtx, 80, (0, 80), histtype='bar', fill=True, stacked=False, co
 ax.set_xlabel('Reco: Shower - Nue Vertex [cm]')
 plt.legend()
 fig_vtx_diff.savefig('distance_nue_shower_vtx.pdf')
-# plt.show()
+plt.close()
 
+####################
+# Print statements
+####################
 print 'Nues: '
 nue_efficiency = float(nPfpNues) / float(nMCNues) * 100.
 print 'All  Nue Reco Efficiency: ', nue_efficiency, '(', float(nPfpNues), ' / ', float(nMCNues), ')'
