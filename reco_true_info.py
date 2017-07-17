@@ -151,7 +151,7 @@ _ = plt.hist(mult, 10, (0, 10), histtype='bar', color=[
 ax.set_xlabel('Primary MC per event')
 plt.legend()
 fig_mc_trackshower.savefig('mc_per_event_track_shower.pdf')
-# plt.show()
+plt.close()
 
 ########################################
 # compare pfp showers / tracks per event
@@ -188,7 +188,7 @@ _ = plt.hist(mult, 8, (0, 8), histtype='bar', color=[
 ax.set_xlabel('PFP per event')
 plt.legend()
 fig_pfp_trackshower.savefig('pfp_per_event_track_shower.pdf')
-# plt.show()
+plt.close()
 
 #####################################
 # let's also look at the pfp accuracy
@@ -371,7 +371,6 @@ for showers in tqdm(mcPdg_showers.index):
     mcEnergy_shwr.append(mc_energy_shower)
     pfpEnergy_shwr.append(pfp_energy_shower)
     diff_energy_shwr.append(pfp_energy_shower - mc_energy_shower)
-    # print mcPdg_shower
     if(mcPdg_shower != pfpPdg_shower and mcPdg_shower != 22):
         false_pfp_counter = false_pfp_counter + 1
         mcEnergy_notElec.append(mc_energy_shower)
@@ -513,37 +512,37 @@ print 'Not Showers          : ', false_pfp_counter
 print 'True Photon Showers  : ', photon_pfp_counter
 # what are the particles most reconstructed as a shower?
 particle_counts = Counter(particle_list)
-temp_plot)df=pd.DataFrame.from_dict(particle_counts, orient = 'index')
+temp_plot_df = pd.DataFrame.from_dict(particle_counts, orient='index')
 # fig_pfp_showers = plt.figure()
 # ax = fig_pfp_showers.add_subplot(111)
-temp_plot_df.plot(kind = 'bar', alpha = 0.5, legend = False)
+temp_plot_df.plot(kind='bar', alpha=0.5, legend=False)
 # ax.set_xlabel('True Particle Reconstructed as PFP Shower')
 
-interaction_counts=Counter(interaction_list)
-temp_plot_df=pd.DataFrame.from_dict(interaction_counts, orient = 'index')
+interaction_counts = Counter(interaction_list)
+temp_plot_df = pd.DataFrame.from_dict(interaction_counts, orient='index')
 # fig_pfp_showers = plt.figure()
 # ax = fig_pfp_showers.add_subplot(111)
-temp_plot_df.plot(kind = 'bar', alpha = 0.5, legend = False)
+temp_plot_df.plot(kind='bar', alpha=0.5, legend=False)
 # ax.set_xlabel('Interaction Mode - Reco PFP Shower')
 
-interaction_counts_elec=Counter(interaction_list_elec)
-temp_plot_df=pd.DataFrame.from_dict(interaction_counts_elec, orient = 'index')
+interaction_counts_elec = Counter(interaction_list_elec)
+temp_plot_df = pd.DataFrame.from_dict(interaction_counts_elec, orient='index')
 # fig_pfp_showers = plt.figure()
 # ax = fig_pfp_showers.add_subplot(111)
-temp_plot_df.plot(kind = 'bar', alpha = 0.5, legend = False)
+temp_plot_df.plot(kind='bar', alpha=0.5, legend=False)
 # ax.set_xlabel('Interaction Mode - Reco PFP Electrons')
 
 # histogram of mc shower hits
-fig_mc_shower_hits=plt.figure()
-ax=fig_mc_shower_hits.add_subplot(111)
-mult_mc=[pion_mc_hits, neutron_mc_hits, proton_mc_hits,
+fig_mc_shower_hits = plt.figure()
+ax = fig_mc_shower_hits.add_subplot(111)
+mult_mc = [pion_mc_hits, neutron_mc_hits, proton_mc_hits,
            photon_mc_hits, electron_mc_hits]
 _ = plt.hist(mult_mc, 30, (0, 3500), histtype='bar', fill=True, stacked=True, color=[
              'wheat', 'goldenrod', 'darkmagenta', 'skyblue', 'tomato'], label=['Pion', 'Neutron', 'Proton', 'Photon', 'Electron'])
 ax.set_xlabel('True MC Hits')
 plt.legend()
 fig_mc_shower_hits.savefig('true_hits_type.pdf')
-# plt.show()
+plt.close()
 
 # histogram of pfp shower hits
 fig_pfp_shower_hits = plt.figure()
@@ -555,7 +554,7 @@ _ = plt.hist(mult_pfp, 30, (0, 3500), histtype='bar', fill=True, stacked=True, c
 ax.set_xlabel('Reconstructed Hits')
 plt.legend()
 fig_pfp_shower_hits.savefig('reco_hits_type.pdf')
-# plt.show()
+plt.close()
 
 # histogram of ratio pfp/MC shower hits
 fig_pfp_shower_hits = plt.figure()
@@ -567,7 +566,7 @@ _ = plt.hist(mult_ratio, 30, (0, 4), histtype='bar', fill=True, stacked=True, co
 ax.set_xlabel('Ratio Reco / MC Hits')
 plt.legend()
 fig_pfp_shower_hits.savefig('ratio_hits_type.pdf')
-# plt.show()
+plt.close()
 
 ####################################
 # 2d histogram of ratio vs true hits
@@ -575,75 +574,75 @@ fig_pfp_shower_hits.savefig('ratio_hits_type.pdf')
 fig_shower_hits_2d = plt.figure()
 ax = fig_shower_hits_2d.add_subplot(111)
 _ = plt.hist2d(electron_mc_hits, electron_ratio_hits,
-               20, cmap = cm.summer, norm = LogNorm())
+               20, cmap=cm.summer, norm=LogNorm())
 ax.set_xlabel('Electron True MC Hits')
 ax.set_ylabel('Electon Ratio Reco / MC Hits')
 plt.colorbar()
 fig_shower_hits_2d.savefig('elec_ratio_true_hits.pdf')
-# plt.show()
+plt.close()
 
-fig_shower_hits_2d=plt.figure()
-ax=fig_shower_hits_2d.add_subplot(111)
-_=plt.hist2d(pion_mc_hits, pion_ratio_hits,
-               20, cmap = cm.summer, norm = LogNorm())
+fig_shower_hits_2d = plt.figure()
+ax = fig_shower_hits_2d.add_subplot(111)
+_ = plt.hist2d(pion_mc_hits, pion_ratio_hits,
+               20, cmap=cm.summer, norm=LogNorm())
 ax.set_xlabel('Pion True MC Hits')
 ax.set_ylabel('Pion Ratio Reco / MC Hits')
 plt.colorbar()
 fig_shower_hits_2d.savefig('pion_ratio_true_hits.pdf')
-# plt.show()
+plt.close()
 
-fig_shower_hits_2d=plt.figure()
-ax=fig_shower_hits_2d.add_subplot(111)
-_=plt.hist2d(neutron_mc_hits, neutron_ratio_hits,
-               20, cmap = cm.summer, norm = LogNorm())
+fig_shower_hits_2d = plt.figure()
+ax = fig_shower_hits_2d.add_subplot(111)
+_ = plt.hist2d(neutron_mc_hits, neutron_ratio_hits,
+               20, cmap=cm.summer, norm=LogNorm())
 ax.set_xlabel('Neutron True MC Hits')
 ax.set_ylabel('Neutron Ratio Reco / MC Hits')
 plt.colorbar()
 fig_shower_hits_2d.savefig('neutron_ratio_true_hits.pdf')
-# plt.show()
+plt.close()
 
-fig_shower_hits_2d=plt.figure()
-ax=fig_shower_hits_2d.add_subplot(111)
-_=plt.hist2d(proton_mc_hits, proton_ratio_hits,
-               20, cmap = cm.summer, norm = LogNorm())
+fig_shower_hits_2d = plt.figure()
+ax = fig_shower_hits_2d.add_subplot(111)
+_ = plt.hist2d(proton_mc_hits, proton_ratio_hits,
+               20, cmap=cm.summer, norm=LogNorm())
 ax.set_xlabel('Proton True MC Hits')
 ax.set_ylabel('Proton Ratio Reco / MC Hits')
 plt.colorbar()
 fig_shower_hits_2d.savefig('proton_ratio_hits_true_hits.pdf')
-# plt.show()
+plt.close()
 
-fig_shower_hits_2d=plt.figure()
-ax=fig_shower_hits_2d.add_subplot(111)
-_=plt.hist2d(photon_mc_hits, photon_ratio_hits,
-               20, cmap = cm.summer, norm = LogNorm())
+fig_shower_hits_2d = plt.figure()
+ax = fig_shower_hits_2d.add_subplot(111)
+_ = plt.hist2d(photon_mc_hits, photon_ratio_hits,
+               20, cmap=cm.summer, norm=LogNorm())
 ax.set_xlabel('Photon True MC Hits')
 ax.set_ylabel('Photon Ratio Reco / MC Hits')
 plt.colorbar()
 fig_shower_hits_2d.savefig('photon_ratio_hits_true_hits.pdf')
-# plt.show()
+plt.close()
 
 # 2d histogram of ratio vs true hits
-fig_shower_hits_2d=plt.figure()
-ax=fig_shower_hits_2d.add_subplot(111)
-_=plt.hist2d(electron_pfp_hits, electron_ratio_hits,
-               20, cmap = cm.summer, norm = LogNorm())
+fig_shower_hits_2d = plt.figure()
+ax = fig_shower_hits_2d.add_subplot(111)
+_ = plt.hist2d(electron_pfp_hits, electron_ratio_hits,
+               20, cmap=cm.summer, norm=LogNorm())
 ax.set_xlabel('Electron Reco Hits')
 ax.set_ylabel('Electron Ratio Reco / MC Hits')
 plt.colorbar()
 fig_shower_hits_2d.savefig('electron_ratio_hits_reco_hits.pdf')
-# plt.show()
+plt.close()
 
 # histograms for energy
-fig_energy_mc=plt.figure()
-ax=fig_energy_mc.add_subplot(111)
-mult_eng_mc=[mcEnergy_pion, mcEnergy_neut,
+fig_energy_mc = plt.figure()
+ax = fig_energy_mc.add_subplot(111)
+mult_eng_mc = [mcEnergy_pion, mcEnergy_neut,
                mcEnergy_prot, mcEnergy_gamma, mcEnergy_elec]
 _ = plt.hist(mult_eng_mc, 80, (0, 2), histtype='bar', fill=True, stacked=True,
              color=['wheat', 'goldenrod', 'darkmagenta', 'skyblue', 'tomato'], label=['Pion', 'Neutron', 'Proton', 'Photon', 'Electron'])
 ax.set_xlabel('True MC Shower Momentum [GeV]')
 plt.legend()
 fig_energy_mc.savefig('true_shower_momentum_type.pdf')
-# plt.show()
+plt.close()
 
 fig_energy_pfp = plt.figure()
 ax = fig_energy_pfp.add_subplot(111)
@@ -654,7 +653,7 @@ _ = plt.hist(mult_eng_pfp, 40, (0, 2), histtype='bar', fill=True, stacked=True,
 ax.set_xlabel('Reco Shower Momentum [GeV]')
 plt.legend()
 fig_energy_pfp.savefig('reco_shower_momentum_type.pdf')
-# plt.show()
+plt.close()
 
 fig_energy_diff = plt.figure()
 ax = fig_energy_diff.add_subplot(111)
@@ -665,7 +664,7 @@ _ = plt.hist(mult_eng_diff, 40, (-2, 2), histtype='bar', fill=True, stacked=True
 ax.set_xlabel('Reco - True Shower Momentum [GeV]')
 plt.legend()
 fig_energy_diff.savefig('reco-true_shower_momentum_type.pdf')
-# plt.show()
+plt.close()
 
 # histograms for energy in terms of interaction modes
 fig_energy_mode = plt.figure()
@@ -677,7 +676,7 @@ _ = plt.hist(mult_eng_mc_mode, 40, (0, 2), histtype='bar', fill=True, stacked=Tr
 ax.set_xlabel('True Shower Momentum [GeV]')
 plt.legend()
 fig_energy_mode.savefig('true_shower_momentum_mode.pdf')
-# plt.show()
+plt.close()
 
 fig_energy_mode = plt.figure()
 ax = fig_energy_mode.add_subplot(111)
@@ -688,18 +687,18 @@ _ = plt.hist(mult_eng_pfp_mode, 40, (0, 2), histtype='bar', fill=True, stacked=T
 ax.set_xlabel('Reco Shower Momentum [GeV]')
 plt.legend()
 fig_energy_mode.savefig('reco_shower_momentum_mode.pdf')
-# plt.show()
+plt.close()
 
 # vtx and energy histograms
-fig_shower_hits_2d = plt.figure()
-ax = fig_shower_hits_2d.add_subplot(111)
-_ = plt.hist2d(pfpEnergy_shwr, vtx_diff_shwr,
-               20, cmap=cm.summer, norm=LogNorm())
-ax.set_xlabel('Reco Shower Energy')
-ax.set_ylabel('Reco - True Shower Vertex')
-plt.colorbar()
-fig_shower_hits_2d.savefig('reco-true_shower_vtx_reco_energy.pdf')
-# plt.show()
+# fig_shower_hits_2d = plt.figure()
+# ax = fig_shower_hits_2d.add_subplot(111)
+# _ = plt.hist2d(pfpEnergy_shwr, vtx_diff_shwr,
+#                20, cmap=cm.summer, norm=LogNorm())
+# ax.set_xlabel('Reco Shower Energy')
+# ax.set_ylabel('Reco - True Shower Vertex')
+# plt.colorbar()
+# fig_shower_hits_2d.savefig('reco-true_shower_vtx_reco_energy.pdf')
+# plt.close()
 
 fig_shower_hits_2d = plt.figure()
 ax = fig_shower_hits_2d.add_subplot(111)
@@ -709,7 +708,7 @@ ax.set_xlabel('True Shower Energy')
 ax.set_ylabel('Reco - True Shower Vertex')
 plt.colorbar()
 fig_shower_hits_2d.savefig('reco-true_shower_vtx_true_energy.pdf')
-# plt.show()
+plt.close()
 
 fig_shower_hits_2d = plt.figure()
 ax = fig_shower_hits_2d.add_subplot(111)
@@ -719,7 +718,7 @@ ax.set_xlabel('Reco Shower Vtx Z')
 ax.set_ylabel('Reco - True Shower Vertex')
 plt.colorbar()
 fig_shower_hits_2d.savefig('reco-true_shower_vtx_reco_vtxZ.pdf')
-# plt.show()
+plt.close()
 
 fig_shower_hits_2d = plt.figure()
 ax = fig_shower_hits_2d.add_subplot(111)
@@ -729,17 +728,17 @@ ax.set_xlabel('True Shower Vtx Z')
 ax.set_ylabel('Reco - True Shower Vertex')
 plt.colorbar()
 fig_shower_hits_2d.savefig('reco-true_shower_vtx_true_vtxZ.pdf')
-# plt.show()
+plt.close()
 
-fig_shower_hits_2d = plt.figure()
-ax = fig_shower_hits_2d.add_subplot(111)
-_ = plt.hist2d(pfpEnergy_elec, vtx_diff_elec,
-               20, cmap=cm.summer, norm=LogNorm())
-ax.set_xlabel('Reco Electron Energy')
-ax.set_ylabel('Reco - True Electron Vertex')
-plt.colorbar()
-fig_shower_hits_2d.savefig('reco-true_electron_vtx_reco_energy.pdf')
-# plt.show()
+# fig_shower_hits_2d = plt.figure()
+# ax = fig_shower_hits_2d.add_subplot(111)
+# _ = plt.hist2d(pfpEnergy_elec, vtx_diff_elec,
+#                20, cmap=cm.summer, norm=LogNorm())
+# ax.set_xlabel('Reco Electron Energy')
+# ax.set_ylabel('Reco - True Electron Vertex')
+# plt.colorbar()
+# fig_shower_hits_2d.savefig('reco-true_electron_vtx_reco_energy.pdf')
+# plt.close()
 
 fig_shower_hits_2d = plt.figure()
 ax = fig_shower_hits_2d.add_subplot(111)
@@ -749,7 +748,7 @@ ax.set_xlabel('True Electron Energy')
 ax.set_ylabel('Reco - True Electron Vertex')
 plt.colorbar()
 fig_shower_hits_2d.savefig('reco-true_electron_vtx_true_energy.pdf')
-# plt.show()
+plt.close()
 
 fig_shower_hits_2d = plt.figure()
 ax = fig_shower_hits_2d.add_subplot(111)
@@ -759,7 +758,7 @@ ax.set_xlabel('Reco Electron Vtx Z')
 ax.set_ylabel('Reco - True Electron Vertex')
 plt.colorbar()
 fig_shower_hits_2d.savefig('reco-true_electron_vtx_reco_vtxZ')
-# plt.show()
+plt.close()
 
 fig_shower_hits_2d = plt.figure()
 ax = fig_shower_hits_2d.add_subplot(111)
