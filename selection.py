@@ -99,5 +99,8 @@ distance = 100
 df = flashRecoVtxDist(df, df_opt, distance)
 
 
+# some other selection cut ideas - reco energy, reco hits, shower to
+# neutrino vertex, at least one reco shower, angles?
+
 elapsed = timeit.default_timer() - start_time
 print 'Time Elapsed: ', elapsed
