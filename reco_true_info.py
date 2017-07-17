@@ -98,6 +98,8 @@ ax.set_xlabel('MC Particle per event')
 
 # number of PFParticles
 df_valid_pfpart = validPFParticle(df)
+print 'Dropping all non-reconstructed all objects: '
+print 'Remaining MC Particles: ', len(df_valid_pfpart)
 
 
 # let's get just the PFP Neutrino candidates
@@ -119,6 +121,7 @@ mc_shower_array = []
 mc_track_array = []
 mc_array = []
 last_num = 0
+mc_electron_counter = 0
 for mcpart in tqdm(df_mcprimary.index):
     # reset counters
     this_num = int(df_mcprimary.loc[mcpart, 'index'])
@@ -129,6 +132,8 @@ for mcpart in tqdm(df_mcprimary.index):
         mc_track_counter = 0
         mc_shower_counter = 0
     # shower events
+    if(df_mcprimary.loc[mcpart, 'mcPdg'] == 11):
+        mc_electron_counter = mc_electron_counter + 1
     if(df_mcprimary.loc[mcpart, 'mcPdg'] == 11 or
        df_mcprimary.loc[mcpart, 'mcPdg'] == 22 or
        df_mcprimary.loc[mcpart, 'mcPdg'] == -11):
@@ -757,7 +762,7 @@ _ = plt.hist2d(vtx_Z_pfp_elec, vtx_diff_elec,
 ax.set_xlabel('Reco Electron Vtx Z')
 ax.set_ylabel('Reco - True Electron Vertex')
 plt.colorbar()
-fig_shower_hits_2d.savefig('reco-true_electron_vtx_reco_vtxZ')
+fig_shower_hits_2d.savefig('reco-true_electron_vtx_reco_vtxZ.pdf')
 plt.close()
 
 fig_shower_hits_2d = plt.figure()
@@ -902,11 +907,15 @@ dir_diff_X = []
 dir_diff_Y = []
 dir_diff_Z = []
 dir_diff = []
+pfp_nues_counter = 0
+all_pfp_nues_counter = 0
 for nues in tqdm(mcPdg_nue.index):
     if(mcPdg_nue[nues] != pfpPdg_nue[nues]):
-        print 'Nue: MC PDG and PFP PDG do not match!'
+        tqdm.write('Nue: MC PDG and PFP PDG do not match!')
         continue
     n_available_hits_nue.append(available_hits_nue[nues])
+    if(mcPdg_nue[nues] == 12):
+        pfp_nues_counter = pfp_nues_counter + 1
 
     # let's do some true mc comparisons
     # vertex
@@ -1027,12 +1036,23 @@ plt.legend()
 fig_vtx_diff.savefig('distance_nue_shower_vtx.pdf')
 # plt.show()
 
-
+print 'Nues: '
 nue_efficiency = float(nPfpNues) / float(nMCNues) * 100.
-print 'Nue Reco Efficiency: ', nue_efficiency, '(', float(nPfpNues), ' / ', float(nMCNues), ')'
+print 'All  Nue Reco Efficiency: ', nue_efficiency, '(', float(nPfpNues), ' / ', float(nMCNues), ')'
 
-nue_purity = float(nPfpNues) / float(nPfpShowers) * 100.
-print 'Nue Reco Purity', nue_purity, '(', float(nPfpNues), ' / ', float(nPfpShowers), ')'
+true_nue_efficiency = float(pfp_nues_counter) / float(nMCNues) * 100.
+print 'True Nue Reco Efficiency: ', true_nue_efficiency, '(', float(pfp_nues_counter), ' / ', float(nMCNues), ')'
+
+nue_purity = float(pfp_nues_counter) / float(nPfpNues) * 100.
+print 'True Nue Reco Purity', nue_purity, '(', float(pfp_nues_counter), ' / ', float(nPfpNues), ')'
+
+# for showers too
+print 'Showers: '
+shower_efficiency = float(true_pfp_counter) / float(mc_electron_counter) * 100.
+print 'True Electron Reco Efficiency: ', shower_efficiency, '(', float(true_pfp_counter), ' / ', float(mc_electron_counter), ')'
+
+shower_purity = float(true_pfp_counter) / float(nPfpShowers) * 100.
+print 'Electron Reco Purity', shower_purity, '(', float(true_pfp_counter), ' / ', float(nPfpShowers), ')'
 
 elapsed = timeit.default_timer() - start_time
 print 'Time Elapsed: ', elapsed
