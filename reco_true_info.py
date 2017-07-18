@@ -244,6 +244,23 @@ openangle_pfp_shwr = df_pfp_showers.pfoOpenAngle
 pfpOpenAngle_shwr = []
 pfpOpenAngle_elec = []
 pfpOpenAngle_notElec = []
+# shower Length
+pfp_shower_length = df_pfp_showers.pfoLength
+mc_shower_length = df_pfp_showers.mcLength
+mcLength_shwr = []
+mcLength_elec = []
+mcLength_prot = []
+mcLength_gamma = []
+mcLength_neut = []
+mcLength_pion = []
+mcLength_cosmic = []
+pfpLength_shwr = []
+pfpLength_elec = []
+pfpLength_prot = []
+pfpLength_gamma = []
+pfpLength_neut = []
+pfpLength_pion = []
+pfpLength_cosmic = []
 # vertex
 mcVtxX_shwr = df_pfp_showers.mcVtxX
 mcVtxY_shwr = df_pfp_showers.mcVtxY
@@ -377,9 +394,17 @@ for showers in tqdm(mcPdg_showers.index):
     dir_diff_Y_shwr.append(dir_y_diff_shwr)
     dir_diff_Z_shwr.append(dir_z_diff_shwr)
     dir_diff_shwr.append(dir_dot_shwr)
+    # Length
+    mc_length = mc_shower_length[showers]
+    pfp_length = pfp_shower_length[showers]
+    mcLength_shwr.append(mc_length)
+    pfpLength_shwr.append(pfp_length)
+
     # energy
     mc_energy_shower = energy_mc_shwr[showers]
     pfp_energy_shower = energy_pfp_shwr[showers]
+    if(pfp_energy_shower < 0):
+        pfp_energy_shower = 0
     mcEnergy_shwr.append(mc_energy_shower)
     pfpEnergy_shwr.append(pfp_energy_shower)
     diff_energy_shwr.append(pfp_energy_shower - mc_energy_shower)
@@ -397,6 +422,8 @@ for showers in tqdm(mcPdg_showers.index):
             pfpEnergy_pion.append(pfp_energy_shower)
             diff_energy_pion.append(pfp_energy_shower - mc_energy_shower)
             pion_completeness.append(this_completeness)
+            pfpLength_pion.append(pfp_length)
+            mcLength_pion.append(mc_length)
         if(mcPdg_shower == 2112):
             particle_list.append('Neut')
             neutron_pfp_hits.append(pfpHits)
@@ -406,6 +433,8 @@ for showers in tqdm(mcPdg_showers.index):
             pfpEnergy_neut.append(pfp_energy_shower)
             diff_energy_neut.append(pfp_energy_shower - mc_energy_shower)
             neutron_completeness.append(this_completeness)
+            pfpLength_neut.append(pfp_length)
+            mcLength_neut.append(mc_length)
         if(mcPdg_shower == 2212):
             particle_list.append('Proton')
             proton_pfp_hits.append(pfpHits)
@@ -418,6 +447,8 @@ for showers in tqdm(mcPdg_showers.index):
             vtx_Y_pfp_prot.append(pfpVtxY_shwr[showers])
             vtx_Z_pfp_prot.append(pfpVtxZ_shwr[showers])
             proton_completeness.append(this_completeness)
+            pfpLength_prot.append(pfp_length)
+            mcLength_prot.append(mc_length)
 
     # if mcNuPdg == 0 then it's not from a neutrino!
     if(cosmic_file == 'True'):
@@ -434,6 +465,8 @@ for showers in tqdm(mcPdg_showers.index):
             vtx_Y_pfp_cosmic.append(pfpVtxY_shwr[showers])
             vtx_Z_pfp_cosmic.append(pfpVtxZ_shwr[showers])
             cosmic_completeness.append(this_completeness)
+            pfpLength_cosmic.append(pfp_length)
+            mcLength_cosmic.append(mc_length)
     if(mcPdg_shower == 22):
         photon_pfp_counter = photon_pfp_counter + 1
         mcEnergy_notElec.append(mc_energy_shower)
@@ -450,6 +483,8 @@ for showers in tqdm(mcPdg_showers.index):
         vtx_Y_pfp_gamma.append(pfpVtxY_shwr[showers])
         vtx_Z_pfp_gamma.append(pfpVtxZ_shwr[showers])
         photon_completeness.append(this_completeness)
+        pfpLength_gamma.append(pfp_length)
+        mcLength_gamma.append(mc_length)
 
     if(mcPdg_shower == pfpPdg_shower):
         # print 'Electron Num Unmatched Hits: ', available_hits_shower[showers]
@@ -480,6 +515,9 @@ for showers in tqdm(mcPdg_showers.index):
         dir_diff_Z_elec.append(dir_z_diff_shwr)
         dir_diff_elec.append(dir_dot_shwr)
         electron_completeness.append(this_completeness)
+        # Length
+        mcLength_elec.append(mc_length)
+        pfpLength_elec.append(pfp_length)
 
         # what do the interaction modes look like for the true electrons?
         # ccqe /cc0pi - is it actually 0 pi?
@@ -614,6 +652,8 @@ plt.legend()
 fig_pfp_shower_hits.savefig('ratio_hits_type.pdf')
 plt.close()
 
+# energy per particle type vs num showers per event
+
 ####################################
 # 2d histogram of ratio vs true hits
 ####################################
@@ -739,6 +779,103 @@ if(cosmic_file == 'True'):
 ax.set_xlabel('Reco - True Shower Momentum [GeV]')
 plt.legend()
 fig_energy_diff.savefig('reco-true_shower_momentum_type.pdf')
+plt.close()
+
+fig_energy_diff = plt.figure()
+ax = fig_energy_diff.add_subplot(111)
+if(cosmic_file == 'False'):
+    mult_eng_diff = [pfpLength_pion, pfpLength_neut,
+                     pfpLength_prot, pfpLength_gamma, pfpLength_elec]
+    _ = plt.hist(mult_eng_diff, 40, (0, 100), histtype='bar', fill=True, stacked=True,
+                 color=['wheat', 'goldenrod', 'darkmagenta', 'skyblue', 'tomato'], label=['Pion', 'Neutron', 'Proton', 'Photon', 'Electron'])
+if(cosmic_file == 'True'):
+    mult_eng_diff = [pfpLength_pion, pfpLength_neut,
+                     pfpLength_prot, pfpLength_gamma, pfpLength_elec, pfpLength_cosmic]
+    _ = plt.hist(mult_eng_diff, 40, (0, 100), histtype='bar', fill=True, stacked=True,
+                 color=['wheat', 'goldenrod', 'darkmagenta', 'skyblue', 'tomato', 'darkslategray'], label=['Pion', 'Neutron', 'Proton', 'Photon', 'Electron', 'Cosmics'])
+ax.set_xlabel('Reco Shower Length [cm]')
+plt.legend()
+fig_energy_diff.savefig('reco_shower_length_type.pdf')
+plt.close()
+
+fig_shower_eng_2d = plt.figure()
+ax = fig_shower_eng_2d.add_subplot(111)
+_ = plt.hist2d(mcEnergy_elec, diff_energy_elec,
+               20, cmap=cm.summer, norm=LogNorm())
+ax.set_xlabel('True Electron Momentum [GeV]')
+ax.set_ylabel('Reco - True Electron Momentum [Gev]')
+plt.colorbar()
+fig_shower_eng_2d.savefig('reco-true_electron_energy_true_energy.pdf')
+plt.close()
+
+fig_shower_eng_2d = plt.figure()
+ax = fig_shower_eng_2d.add_subplot(111)
+_ = plt.hist2d(mcEnergy_shwr, diff_energy_shwr,
+               20, cmap=cm.summer, norm=LogNorm())
+ax.set_xlabel('True Shower Momentum [GeV]')
+ax.set_ylabel('Reco - True Shower Momentum [Gev]')
+plt.colorbar()
+fig_shower_eng_2d.savefig('reco-true_shower_energy_true_energy.pdf')
+plt.close()
+#####
+fig_shower_eng_2d = plt.figure()
+ax = fig_shower_eng_2d.add_subplot(111)
+_ = plt.hist2d(pfpLength_elec, mcEnergy_elec,
+               20, cmap=cm.summer, norm=LogNorm())
+ax.set_xlabel('Electron Reco Shower Length [cm]')
+ax.set_ylabel('True Electron Momentum [Gev]')
+plt.colorbar()
+fig_shower_eng_2d.savefig('true_electron_momentum_reco_shower_length.pdf')
+plt.close()
+
+fig_shower_eng_2d = plt.figure()
+ax = fig_shower_eng_2d.add_subplot(111)
+_ = plt.hist2d(pfpLength_shwr, mcEnergy_shwr,
+               20, cmap=cm.summer, norm=LogNorm())
+ax.set_xlabel('All Reco Shower Length [cm]')
+ax.set_ylabel('True Shower Momentum [GeV]')
+plt.colorbar()
+fig_shower_eng_2d.savefig('true_shower_momentum_reco_shower_length.pdf')
+plt.close()
+
+fig_shower_eng_2d = plt.figure()
+ax = fig_shower_eng_2d.add_subplot(111)
+_ = plt.hist2d(pfpLength_elec, pfpEnergy_elec,
+               20, cmap=cm.summer, norm=LogNorm())
+ax.set_xlabel('Electron Reco Shower Length [cm]')
+ax.set_ylabel('Reco Electron Momentum [Gev]')
+plt.colorbar()
+fig_shower_eng_2d.savefig('reco_electron_momentum_reco_shower_length.pdf')
+plt.close()
+
+fig_shower_eng_2d = plt.figure()
+ax = fig_shower_eng_2d.add_subplot(111)
+_ = plt.hist2d(pfpLength_shwr, pfpEnergy_shwr,
+               20, cmap=cm.summer, norm=LogNorm())
+ax.set_xlabel('All Reco Shower Length [cm]')
+ax.set_ylabel('Reco Shower Momentum [GeV]')
+plt.colorbar()
+fig_shower_eng_2d.savefig('reco_shower_momentum_reco_shower_length.pdf')
+plt.close()
+
+fig_shower_eng_2d = plt.figure()
+ax = fig_shower_eng_2d.add_subplot(111)
+_ = plt.hist2d(pfpLength_elec, diff_energy_elec,
+               20, cmap=cm.summer, norm=LogNorm())
+ax.set_xlabel('Electron Reco-True Shower Length [cm]')
+ax.set_ylabel('Reco Electron Momentum [Gev]')
+plt.colorbar()
+fig_shower_eng_2d.savefig('reco-true_electron_momentum_reco_shower_length.pdf')
+plt.close()
+
+fig_shower_eng_2d = plt.figure()
+ax = fig_shower_eng_2d.add_subplot(111)
+_ = plt.hist2d(pfpLength_shwr, diff_energy_shwr,
+               20, cmap=cm.summer, norm=LogNorm())
+ax.set_xlabel('All Reco-True Shower Length [cm]')
+ax.set_ylabel('Reco Shower Momentum [GeV]')
+plt.colorbar()
+fig_shower_eng_2d.savefig('reco-true_shower_momentum_reco_shower_length.pdf')
 plt.close()
 
 # histograms for energy in terms of interaction modes

@@ -16,6 +16,9 @@ def Pandafy(fileName, tree):
     df = pd.DataFrame(rnp.root2array(fileName, tree))
     return df
 
+# How are my neutrinos doing in these cuts? - look at index 0 events to
+# get a count - make sure these are true reco and not others, how many others?
+
 # Begin timer to measure execution duration
 start_time = timeit.default_timer()
 print 'Begin Selection - Time: ', start_time
@@ -68,6 +71,7 @@ failEvents = inTimeList(df_opt, start_time_window,
                         end_time_window, flashThreshold)
 df_opt = inTimeDataFrame(df_opt, failEvents)
 df = inTimeDataFrame(df, failEvents)
+print 'MC Particles within time: ', len(df.index)
 
 
 ###########################
@@ -99,6 +103,7 @@ print 'PFP in FV: ', nEvents_pfpInTPC
 ##################################
 distance = 100
 df = flashRecoVtxDist(df, df_opt, distance)
+print 'Passed Flash-Vtx Cut: ', len(df.index)
 
 
 # some other selection cut ideas - reco energy, reco hits, shower to
