@@ -1,6 +1,7 @@
 import os
 import sys
 import json
+import sys
 import numpy as np
 import matplotlib.pyplot as plt
 import pandas as pd
@@ -20,7 +21,8 @@ start_time = timeit.default_timer()
 print 'Begin Selection - Time: ', start_time
 
 # open all relevant dataframes
-infile = 'nue_matching.root'
+#infile = 'nue_matching.root'
+infile = sys.argv[1]  # command line input file
 infile_tree_name = 'TrueRecoMon/pandora'
 infile_tree_name2 = 'NueXsec/optical_tree'
 df = Pandafy(infile, infile_tree_name)
@@ -71,9 +73,9 @@ df = inTimeDataFrame(df, failEvents)
 ###########################
 # filter events to be inTPC
 ###########################
-df = inTPC(df)
-nEvents_inTPC = len(df.index)
-print 'MC Particles in TPC: ', nEvents_inTPC
+# df = inTPC(df)
+# nEvents_inTPC = len(df.index)
+# print 'MC Particles in TPC: ', nEvents_inTPC
 
 ######################################
 # filter events where no reco particle

@@ -39,6 +39,7 @@ def flashRecoVtxDist(dataframe_reco, dataframe_opt, distance):
 
     failEvents = []
     yz_dist_list = []
+    yz_dist_list_cosmic = []
     shwr_to_vtx_dist = distance
     # make sure we're only looking at pfp showers
     dataframe_showers = dataframe_reco.drop(
@@ -56,7 +57,7 @@ def flashRecoVtxDist(dataframe_reco, dataframe_opt, distance):
         temp_df2 = dataframe_opt.drop(
             dataframe_opt[dataframe_opt.event != i].index)
         if(temp_df2.empty == True):
-            tqdm.write('Data Frame Empty - maybe something is wrong!')
+            #tqdm.write('Data Frame Empty - maybe something is wrong!')
             failEvents.append(i)
             continue
         # find flash with largest PE
@@ -65,11 +66,15 @@ def flashRecoVtxDist(dataframe_reco, dataframe_opt, distance):
         opt_vtxY = temp_df2.get_value(lrgFlash_index, 'OpFlashCenterY')
         opt_vtxZ = temp_df2.get_value(lrgFlash_index, 'OpFlashCenterZ')
         for shower in temp_df1.index:
+            truePdg = dataframe_showers.mcNuPdg[shower]
             shower_vtxY = dataframe_showers.pfoVtxY[shower]
             shower_vtxZ = dataframe_showers.pfoVtxZ[shower]
             yz_dist = np.sqrt(((opt_vtxY - shower_vtxY) * (opt_vtxY - shower_vtxY)) +
                               ((opt_vtxZ - shower_vtxZ) * (opt_vtxZ - shower_vtxZ)))
-            yz_dist_list.append(yz_dist)
+            if(truePdg == 0):
+                yz_dist_list_cosmic.append(yz_dist)
+            if(truePdg != 0):
+                yz_dist_list.append(yz_dist)
             if(yz_dist <= shwr_to_vtx_dist):
                 event_IsBad = False
             if(event_IsBad == False):
@@ -85,9 +90,10 @@ def flashRecoVtxDist(dataframe_reco, dataframe_opt, distance):
     # let's just do the plotting here for now...
     fig = plt.figure()
     ax = fig.add_subplot(111)
-    _ = plt.hist(yz_dist_list, 50, (0, 300), histtype='bar',
-                 fill=True, stacked=True, color='tomato', label='YZ Distance')
-    ax.set_xlabel('Dist. Reco Shower Vertex to Largest Flash')
+    mult = [yz_dist_list, yz_dist_list_cosmic]
+    _ = plt.hist(mult, 50, (0, 300), histtype='bar',
+                 fill=True, stacked=True, color=['tomato', 'darkslategray'], label=['Nue', 'Cosmics'])
+    ax.set_xlabel('Dist. Reco Shower Vertex to Largest Flash YZ [cm]')
     plt.legend()
     plt.show()
 

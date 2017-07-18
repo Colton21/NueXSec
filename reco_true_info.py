@@ -398,7 +398,7 @@ for showers in tqdm(mcPdg_showers.index):
             diff_energy_pion.append(pfp_energy_shower - mc_energy_shower)
             pion_completeness.append(this_completeness)
         if(mcPdg_shower == 2112):
-            particle_list.append('Neutron')
+            particle_list.append('Neut')
             neutron_pfp_hits.append(pfpHits)
             neutron_mc_hits.append(mcHits)
             neutron_ratio_hits.append(float(pfpHits) / float(mcHits))
@@ -455,7 +455,7 @@ for showers in tqdm(mcPdg_showers.index):
         # print 'Electron Num Unmatched Hits: ', available_hits_shower[showers]
         # print 'Electron: ', pfo_hits_shower[showers]
         true_pfp_counter = true_pfp_counter + 1
-        particle_list.append('Electron')
+        particle_list.append('Elec')
         electron_pfp_hits.append(pfpHits)
         electron_mc_hits.append(mcHits)
         electron_ratio_hits.append(float(pfpHits) / float(mcHits))
@@ -489,7 +489,7 @@ for showers in tqdm(mcPdg_showers.index):
             pfpEnergy_ccqe_elec.append(pfp_energy_shower)
         # res
         if(mcMode == 1):
-            interaction_list_elec.append('Resonant')
+            interaction_list_elec.append('Res')
             mcEnergy_res_elec.append(mc_energy_shower)
             pfpEnergy_res_elec.append(pfp_energy_shower)
         # dis
@@ -499,7 +499,7 @@ for showers in tqdm(mcPdg_showers.index):
             pfpEnergy_dis_elec.append(pfp_energy_shower)
         # coh
         if(mcMode == 3):
-            interaction_list_elec.append('Coherent')
+            interaction_list_elec.append('Coh')
             mcEnergy_coh_elec.append(mc_energy_shower)
             pfpEnergy_coh_elec.append(pfp_energy_shower)
 
@@ -512,7 +512,7 @@ for showers in tqdm(mcPdg_showers.index):
         ccqe_completeness.append(this_completeness)
     # res
     if(mcMode == 1):
-        interaction_list.append('Resonant')
+        interaction_list.append('Res')
         mcEnergy_res.append(mc_energy_shower)
         pfpEnergy_res.append(pfp_energy_shower)
         res_completeness.append(this_completeness)
@@ -524,7 +524,7 @@ for showers in tqdm(mcPdg_showers.index):
         dis_completeness.append(this_completeness)
     # coh
     if(mcMode == 3):
-        interaction_list.append('Coherent')
+        interaction_list.append('Coh')
         mcEnergy_coh.append(mc_energy_shower)
         pfpEnergy_coh.append(pfp_energy_shower)
         coh_completeness.append(this_completeness)
@@ -541,6 +541,7 @@ temp_plot_df = pd.DataFrame.from_dict(particle_counts, orient='index')
 # fig_pfp_showers = plt.figure()
 # ax = fig_pfp_showers.add_subplot(111)
 temp_plot_df.plot(kind='bar', alpha=0.5, legend=False)
+# plt.show()
 # ax.set_xlabel('True Particle Reconstructed as PFP Shower')
 
 interaction_counts = Counter(interaction_list)
@@ -548,6 +549,7 @@ temp_plot_df = pd.DataFrame.from_dict(interaction_counts, orient='index')
 # fig_pfp_showers = plt.figure()
 # ax = fig_pfp_showers.add_subplot(111)
 temp_plot_df.plot(kind='bar', alpha=0.5, legend=False)
+# plt.show()
 # ax.set_xlabel('Interaction Mode - Reco PFP Shower')
 
 interaction_counts_elec = Counter(interaction_list_elec)
@@ -555,6 +557,7 @@ temp_plot_df = pd.DataFrame.from_dict(interaction_counts_elec, orient='index')
 # fig_pfp_showers = plt.figure()
 # ax = fig_pfp_showers.add_subplot(111)
 temp_plot_df.plot(kind='bar', alpha=0.5, legend=False)
+# plt.show()
 # ax.set_xlabel('Interaction Mode - Reco PFP Electrons')
 
 # histogram of mc shower hits
