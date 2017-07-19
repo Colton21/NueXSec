@@ -156,12 +156,13 @@ def constructPlane(point1, point2, point3):
     v_ab_k = (point2[2] - point1[2])
     v_ab = [v_ab_i, v_ab_j, v_ab_k]
 
-    v_bc_i = (point3[0] - point1[0])
-    v_bc_j = (point3[1] - point1[1])
-    v_bc_k = (point3[2] - point1[2])
-    v_bc = [v_bc_i, v_bc_j, v_bc_k]
+    v_ac_i = (point3[0] - point1[0])
+    v_ac_j = (point3[1] - point1[1])
+    v_ac_k = (point3[2] - point1[2])
+    v_ac = [v_ac_i, v_ac_j, v_ac_k]
 
-    x_ab_bc = np.cross(v_ab, v_bc)
+    x_ab_ac = np.cross(v_ab, v_ac)
+    return x_ab_ac
 
 # distance to nearest wall calculation
 
@@ -182,26 +183,100 @@ def distToWall(start_x, start_y, start_z):
     nearest_y = 0
     nearest_z = 0
 
-    if(start_x < tpc_x_mid):
-        nearest_x = tpc_x1
-    if(start_y < tpc_y_mid):
-        nearest_y = tpc_y1
-    if(start_z < tpc_z_mid):
-        nearest_z = tpc_z1
+    point1_yz = []
+    point2_yz = []
+    point3_yz = []
+    point1_xz = []
+    point2_xz = []
+    point3_xz = []
+    point1_xy = []
+    point2_xy = []
+    point3_xy = []
 
+    using_x = []
+    using_y = []
+    using_z = []
+
+    if(start_x <= tpc_x_mid):
+        # yz plane at x1
+        point1_yz = (tpc_x1, tpc_y1, tpc_z1)
+        point2_yz = (tpc_x1, tpc_y2, tpc_z1)
+        point3_yz = (tpc_x1, tpc_y1, tpc_z2)
+        using_x = tpc_x1
     if(start_x > tpc_x_mid):
-        nearest_x = tpc_x2
+        # yz plane at x2
+        point1_yz = (tpc_x2, tpc_y1, tpc_z1)
+        point2_yz = (tpc_x2, tpc_y2, tpc_z1)
+        point3_yz = (tpc_x2, tpc_y1, tpc_z2)
+        using_x = tpc_x2
+
+    if(start_y <= tpc_y_mid):
+        # xz plane at y1
+        point1_xz = (tpc_x1, tpc_y1, tpc_z1)
+        point2_xz = (tpc_x2, tpc_y1, tpc_z1)
+        point3_xz = (tpc_x1, tpc_y1, tpc_z2)
+        using_y = tpc_y1
     if(start_y > tpc_y_mid):
-        nearest_y = tpc_y2
+        # xz plane at y2
+        point1_xz = (tpc_x1, tpc_y2, tpc_z1)
+        point2_xz = (tpc_x2, tpc_y2, tpc_z1)
+        point3_xz = (tpc_x1, tpc_y2, tpc_z2)
+        using_y = tpc_y2
+
+    if(start_z <= tpc_z_mid):
+        # xy plane at z1
+        point1_xy = (tpc_x1, tpc_y1, tpc_z1)
+        point2_xy = (tpc_x2, tpc_y1, tpc_z1)
+        point3_xy = (tpc_x1, tpc_y2, tpc_z1)
+        using_z = tpc_z1
     if(start_z > tpc_z_mid):
-        nearest_z = tpc_z2
+        # xy plane at z2
+        point1_xy = (tpc_x1, tpc_y1, tpc_z2)
+        point2_xy = (tpc_x2, tpc_y1, tpc_z2)
+        point3_xy = (tpc_x1, tpc_y2, tpc_z2)
+        using_z = tpc_z2
 
     # now I need to construct 3 planes and check the minimum distance
-    plane1 =
+    plane_xy = constructPlane(point1_xy, point2_xy, point3_xy)
+    # ax+by+cz+d=0
+    d_xy = -1 * ((plane_xy[0] * using_x) + (plane_xy[1]
+                                            * using_y) + (plane_xy[2] * using_z))
+    mod_xy = np.sqrt((plane_xy[0] * plane_xy[0]) + (plane_xy[1] *
+                                                    plane_xy[1]) + (plane_xy[2] * plane_xy[2]))
+    plane_xz = constructPlane(point1_xz, point2_xz, point3_xz)
+    d_xz = -1 * ((plane_xz[0] * using_x) + (plane_xz[1]
+                                            * using_y) + (plane_xz[2] * using_z))
+    mod_xz = np.sqrt((plane_xz[0] * plane_xz[0]) + (plane_xz[1] *
+                                                    plane_xz[1]) + (plane_xz[2] * plane_xz[2]))
+    plane_yz = constructPlane(point1_yz, point2_yz, point3_yz)
+    d_yz = -1 * ((plane_yz[0] * using_x) + (plane_yz[1]
+                                            * using_y) + (plane_yz[2] * using_z))
+    mod_yz = np.sqrt((plane_yz[0] * plane_yz[0]) + (plane_yz[1] *
+                                                    plane_yz[1]) + (plane_yz[2] * plane_yz[2]))
 
     # calculate the 3D distance to the nearest wall
+    start_point = (start_x, start_y, start_z)
+    dist_xy = abs(((np.dot(start_point, plane_xy) + d_xy) / mod_xy))
+    dist_xz = abs(((np.dot(start_point, plane_xz) + d_xz) / mod_xz))
+    dist_yz = abs(((np.dot(start_point, plane_yz) + d_yz) / mod_yz))
 
-    return min_distance
+    # find the minimum
+    print 'XY: ', dist_xy
+    print 'XZ: ', dist_xz
+    print 'YZ: ', dist_yz
+    if(dist_xy <= dist_xz):
+        if(dist_xy <= dist_yz):
+            return dist_xy
+    if(dist_xz <= dist_xy):
+        if(dist_xz <= dist_yz):
+            return dist_xz
+    if(dist_yz <= dist_xy):
+        if(dist_yz <= dist_xz):
+            return dist_yz
+
+    print 'Ooops you are an idiot!'
+    return 0
+
 
 # some events have no MC particles - these are uninteresting!
 
