@@ -360,6 +360,14 @@ ccqe_completeness = []
 res_completeness = []
 dis_completeness = []
 coh_completeness = []
+# compare some proton and electron directions per event
+pfpDirX_event_prot = []
+pfpDirY_event_prot = []
+pfpDirZ_event_prot = []
+pfpDirX_event_elec = []
+pfpDirY_event_elec = []
+pfpDirZ_event_elec = []
+
 # Begin looping showers
 for showers in tqdm(mcPdg_showers.index):
     nPfpShowers = nPfpShowers + 1
@@ -449,6 +457,13 @@ for showers in tqdm(mcPdg_showers.index):
             proton_completeness.append(this_completeness)
             pfpLength_prot.append(pfp_length)
             mcLength_prot.append(mc_length)
+            # directions
+            pfpDirX_event_prot.append(
+                tuple((pfpDirX_shwr[showers], df_pfp_showers.event[showers])))
+            pfpDirY_event_prot.append(
+                tuple((pfpDirY_shwr[showers], df_pfp_showers.event[showers])))
+            pfpDirZ_event_prot.append(
+                tuple((pfpDirZ_shwr[showers], df_pfp_showers.event[showers])))
 
     # if mcNuPdg == 0 then it's not from a neutrino!
     if(cosmic_file == 'True'):
@@ -518,6 +533,13 @@ for showers in tqdm(mcPdg_showers.index):
         # Length
         mcLength_elec.append(mc_length)
         pfpLength_elec.append(pfp_length)
+        # directions
+        pfpDirX_event_elec.append(
+            tuple((pfpDirX_shwr[showers], df_pfp_showers.event[showers])))
+        pfpDirY_event_elec.append(
+            tuple((pfpDirY_shwr[showers], df_pfp_showers.event[showers])))
+        pfpDirZ_event_elec.append(
+            tuple((pfpDirZ_shwr[showers], df_pfp_showers.event[showers])))
 
         # what do the interaction modes look like for the true electrons?
         # ccqe /cc0pi - is it actually 0 pi?
@@ -1258,6 +1280,8 @@ ax.set_xlabel('Reco: Shower - Nue Vertex [cm]')
 plt.legend()
 fig_vtx_diff.savefig('distance_nue_shower_vtx.pdf')
 plt.close()
+
+# let's also compare these angles
 
 ####################
 # Print statements

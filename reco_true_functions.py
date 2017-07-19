@@ -3,6 +3,9 @@
 
 # let's only have events in our time window
 from tqdm import tqdm
+from shapely import geometry
+from shapely.geometry import Polygon
+from shapely.geometry import Point
 import matplotlib.pyplot as plt
 import numpy as np
 import sys
@@ -57,7 +60,7 @@ def flashRecoVtxDist(dataframe_reco, dataframe_opt, distance):
         temp_df2 = dataframe_opt.drop(
             dataframe_opt[dataframe_opt.event != i].index)
         if(temp_df2.empty == True):
-            #tqdm.write('Data Frame Empty - maybe something is wrong!')
+            # tqdm.write('Data Frame Empty - maybe something is wrong!')
             failEvents.append(i)
             continue
         # find flash with largest PE
@@ -143,6 +146,63 @@ def pfpInFV(dataframe, x_min, x_max, y_min, y_max, z_min, z_max):
         dataframe[(dataframe.pfoVtxZ < tpc_z1 + z_min) | (dataframe.pfoVtxZ > tpc_z2 - z_max)].index)
     return dataframe
 
+# construct a plane
+
+
+def constructPlane(point1, point2, point3):
+    # determine the vectors
+    v_ab_i = (point2[0] - point1[0])
+    v_ab_j = (point2[1] - point1[1])
+    v_ab_k = (point2[2] - point1[2])
+    v_ab = [v_ab_i, v_ab_j, v_ab_k]
+
+    v_bc_i = (point3[0] - point1[0])
+    v_bc_j = (point3[1] - point1[1])
+    v_bc_k = (point3[2] - point1[2])
+    v_bc = [v_bc_i, v_bc_j, v_bc_k]
+
+    x_ab_bc = np.cross(v_ab, v_bc)
+
+# distance to nearest wall calculation
+
+
+def distToWall(start_x, start_y, start_z):
+    tpc_x1 = 0
+    tpc_x2 = 256.35
+    tpc_y1 = -116.5
+    tpc_y2 = 116.5
+    tpc_z1 = 0
+    tpc_z2 = 1036.8
+
+    tpc_x_mid = (float(tpc_x2) - float(tpc_x1)) / 2.
+    tpc_y_mid = (float(tpc_y2) - float(abs(tpc_y1))) / 2.
+    tpc_z_mid = (float(tpc_z2) - float(tpc_z1)) / 2.
+
+    nearest_x = 0
+    nearest_y = 0
+    nearest_z = 0
+
+    if(start_x < tpc_x_mid):
+        nearest_x = tpc_x1
+    if(start_y < tpc_y_mid):
+        nearest_y = tpc_y1
+    if(start_z < tpc_z_mid):
+        nearest_z = tpc_z1
+
+    if(start_x > tpc_x_mid):
+        nearest_x = tpc_x2
+    if(start_y > tpc_y_mid):
+        nearest_y = tpc_y2
+    if(start_z > tpc_z_mid):
+        nearest_z = tpc_z2
+
+    # now I need to construct 3 planes and check the minimum distance
+    plane1 =
+
+    # calculate the 3D distance to the nearest wall
+
+    return min_distance
+
 # some events have no MC particles - these are uninteresting!
 
 
@@ -174,7 +234,7 @@ def validPFParticle(dataframe):
         (dataframe.pfoVtxX == 0.0) &
         (dataframe.pfoVtxY == 0.0) &
         (dataframe.pfoVtxZ == 0.0)].index)
-    #dataframe = dataframe.drop(dataframe[dataframe.pfoEnergy == 0.0].index)
+    # dataframe = dataframe.drop(dataframe[dataframe.pfoEnergy == 0.0].index)
     return dataframe
 
 
