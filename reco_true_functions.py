@@ -261,9 +261,9 @@ def distToWall(start_x, start_y, start_z):
     dist_yz = abs(((np.dot(start_point, plane_yz) + d_yz) / mod_yz))
 
     # find the minimum
-    print 'XY: ', dist_xy
-    print 'XZ: ', dist_xz
-    print 'YZ: ', dist_yz
+    # print 'XY: ', dist_xy
+    # print 'XZ: ', dist_xz
+    # print 'YZ: ', dist_yz
     if(dist_xy <= dist_xz):
         if(dist_xy <= dist_yz):
             return dist_xy

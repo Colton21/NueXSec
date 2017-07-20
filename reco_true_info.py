@@ -244,6 +244,13 @@ openangle_pfp_shwr = df_pfp_showers.pfoOpenAngle
 pfpOpenAngle_shwr = []
 pfpOpenAngle_elec = []
 pfpOpenAngle_notElec = []
+# distance to wall
+pfpVertexToWall_elec = []
+pfpVertexToWall_prot = []
+pfpVertexToWall_pion = []
+pfpVertexToWall_neut = []
+pfpVertexToWall_gamma = []
+pfpVertexToWall_cosmic = []
 # shower Length
 pfp_shower_length = df_pfp_showers.pfoLength
 mc_shower_length = df_pfp_showers.mcLength
@@ -432,6 +439,8 @@ for showers in tqdm(mcPdg_showers.index):
             pion_completeness.append(this_completeness)
             pfpLength_pion.append(pfp_length)
             mcLength_pion.append(mc_length)
+            pfpVertexToWall_pion.append(distToWall(
+                pfpVtxX_shwr[showers], pfpVtxY_shwr[showers], pfpVtxZ_shwr[showers]))
         if(mcPdg_shower == 2112):
             particle_list.append('Neut')
             neutron_pfp_hits.append(pfpHits)
@@ -443,6 +452,8 @@ for showers in tqdm(mcPdg_showers.index):
             neutron_completeness.append(this_completeness)
             pfpLength_neut.append(pfp_length)
             mcLength_neut.append(mc_length)
+            pfpVertexToWall_neut.append(distToWall(
+                pfpVtxX_shwr[showers], pfpVtxY_shwr[showers], pfpVtxZ_shwr[showers]))
         if(mcPdg_shower == 2212):
             particle_list.append('Proton')
             proton_pfp_hits.append(pfpHits)
@@ -457,6 +468,8 @@ for showers in tqdm(mcPdg_showers.index):
             proton_completeness.append(this_completeness)
             pfpLength_prot.append(pfp_length)
             mcLength_prot.append(mc_length)
+            pfpVertexToWall_prot.append(distToWall(
+                pfpVtxX_shwr[showers], pfpVtxY_shwr[showers], pfpVtxZ_shwr[showers]))
             # directions
             pfpDirX_event_prot.append(
                 tuple((pfpDirX_shwr[showers], df_pfp_showers.event[showers])))
@@ -482,6 +495,8 @@ for showers in tqdm(mcPdg_showers.index):
             cosmic_completeness.append(this_completeness)
             pfpLength_cosmic.append(pfp_length)
             mcLength_cosmic.append(mc_length)
+            pfpVertexToWall_cosmic.append(distToWall(
+                pfpVtxX_shwr[showers], pfpVtxY_shwr[showers], pfpVtxZ_shwr[showers]))
     if(mcPdg_shower == 22):
         photon_pfp_counter = photon_pfp_counter + 1
         mcEnergy_notElec.append(mc_energy_shower)
@@ -500,6 +515,8 @@ for showers in tqdm(mcPdg_showers.index):
         photon_completeness.append(this_completeness)
         pfpLength_gamma.append(pfp_length)
         mcLength_gamma.append(mc_length)
+        pfpVertexToWall_gamma.append(distToWall(
+            pfpVtxX_shwr[showers], pfpVtxY_shwr[showers], pfpVtxZ_shwr[showers]))
 
     if(mcPdg_shower == pfpPdg_shower):
         # print 'Electron Num Unmatched Hits: ', available_hits_shower[showers]
@@ -533,6 +550,8 @@ for showers in tqdm(mcPdg_showers.index):
         # Length
         mcLength_elec.append(mc_length)
         pfpLength_elec.append(pfp_length)
+        pfpVertexToWall_elec.append(distToWall(
+            pfpVtxX_shwr[showers], pfpVtxY_shwr[showers], pfpVtxZ_shwr[showers]))
         # directions
         pfpDirX_event_elec.append(
             tuple((pfpDirX_shwr[showers], df_pfp_showers.event[showers])))
@@ -818,6 +837,54 @@ if(cosmic_file == 'True'):
 ax.set_xlabel('Reco Shower Length [cm]')
 plt.legend()
 fig_energy_diff.savefig('reco_shower_length_type.pdf')
+plt.close()
+
+# histogram of ratio pfp/MC shower hits
+fig_pfp_shower_dist = plt.figure()
+ax = fig_pfp_shower_dist.add_subplot(111)
+if(cosmic_file == 'False'):
+    mult = [pfpVertexToWall_pion, pfpVertexToWall_neut,
+            pfpVertexToWall_prot, pfpVertexToWall_gamma, pfpVertexToWall_elec]
+    _ = plt.hist(mult, 40, (0, 150), histtype='bar', fill=True, stacked=True, color=[
+        'wheat', 'goldenrod', 'darkmagenta', 'skyblue', 'tomato'], label=['Pion', 'Neutron', 'Proton', 'Photon', 'Electron'])
+if(cosmic_file == 'True'):
+    mult = [pfpVertexToWall_pion, pfpVertexToWall_neut,
+            pfpVertexToWall_prot, pfpVertexToWall_gamma, pfpVertexToWall_elec, pfpVertexToWall_cosmic]
+    _ = plt.hist(mult, 40, (0, 150), histtype='bar', fill=True, stacked=True, color=[
+        'wheat', 'goldenrod', 'darkmagenta', 'skyblue', 'tomato', 'darkslategray'], label=['Pion', 'Neutron', 'Proton', 'Photon', 'Electron', 'Cosmics'])
+ax.set_xlabel('Min Distance to Wall [cm]')
+plt.legend()
+fig_pfp_shower_dist.savefig('shower_distance_to_wall.pdf')
+plt.close()
+
+fig_shower_eng_2d = plt.figure()
+ax = fig_shower_eng_2d.add_subplot(111)
+_ = plt.hist2d(pfpVertexToWall_elec, diff_energy_elec,
+               20, cmap=cm.summer, norm=LogNorm())
+ax.set_xlabel('Electron Min Distance to Wall [cm]')
+ax.set_ylabel('Reco - True Electron Momentum [Gev]')
+plt.colorbar()
+fig_shower_eng_2d.savefig('reco-true_electron_energy_distance_to_wall.pdf')
+plt.close()
+
+fig_shower_eng_2d = plt.figure()
+ax = fig_shower_eng_2d.add_subplot(111)
+_ = plt.hist2d(pfpVertexToWall_prot, diff_energy_prot,
+               20, cmap=cm.summer, norm=LogNorm())
+ax.set_xlabel('Proton Min Distance to Wall [cm]')
+ax.set_ylabel('Reco - True Proton Momentum [Gev]')
+plt.colorbar()
+fig_shower_eng_2d.savefig('reco-true_proton_energy_distance_to_wall.pdf')
+plt.close()
+
+fig_shower_eng_2d = plt.figure()
+ax = fig_shower_eng_2d.add_subplot(111)
+_ = plt.hist2d(pfpVertexToWall_cosmic, diff_energy_cosmic,
+               20, cmap=cm.summer, norm=LogNorm())
+ax.set_xlabel('Cosmic Min Distance to Wall [cm]')
+ax.set_ylabel('Reco - True Cosmic Momentum [Gev]')
+plt.colorbar()
+fig_shower_eng_2d.savefig('reco-true_cosmic_energy_distance_to_wall.pdf')
 plt.close()
 
 fig_shower_eng_2d = plt.figure()
@@ -1281,7 +1348,41 @@ plt.legend()
 fig_vtx_diff.savefig('distance_nue_shower_vtx.pdf')
 plt.close()
 
-# let's also compare these angles
+# let's also compare these angles between shower_protons and shower_electrons
+# event number, tuples
+i = 0
+prot_elec_dot = []
+for tup1 in pfpDirX_event_prot:
+    j = 0
+    event_i = pfpDirX_event_prot[i][1]
+    dirX_prot = pfpDirX_event_prot[i][0]
+    dirY_prot = pfpDirY_event_prot[i][0]
+    dirZ_prot = pfpDirZ_event_prot[i][0]
+    # print 'Proton Dir: ', dirX_prot, dirY_prot, dirZ_prot
+    i = i + 1
+    for tup2 in pfpDirX_event_elec:
+        event_j = pfpDirX_event_elec[j][1]
+        if(event_i == event_j):
+            dirX_elec = pfpDirX_event_elec[j][0]
+            dirY_elec = pfpDirY_event_elec[j][0]
+            dirZ_elec = pfpDirZ_event_elec[j][0]
+            dotprod = np.arccos((dirX_prot * dirX_elec) +
+                                (dirY_prot * dirY_elec) + (dirZ_prot * dirZ_elec)) * (180 / 3.1415)
+            prot_elec_dot.append(dotprod)
+            j = j + 1
+        if(event_i != event_j):
+            j = j + 1
+            continue
+
+# histogram of nue vtx to shower vtx
+fig_vtx_diff = plt.figure()
+ax = fig_vtx_diff.add_subplot(111)
+_ = plt.hist(prot_elec_dot, 40, (0, 180), histtype='bar', fill=True, stacked=False, color=[
+    'tomato'], label=['Dot Product'])
+ax.set_xlabel('Proton:Electron Reco Shower Direction Dot Product')
+plt.legend()
+fig_vtx_diff.savefig('proton_electron_shower_dot_product.pdf')
+plt.close()
 
 ####################
 # Print statements
