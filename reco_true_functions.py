@@ -319,6 +319,65 @@ def getMCNeutrino(dataframe):
         dataframe[(dataframe.mcIsNeutrino == False)].index)
     return dataframe
 
+# get the nue cc objects
+
+
+def getMCCCNue(dataframe):
+    dataframe = dataframe.drop(
+        dataframe[(dataframe.mcIsCC != True) & (dataframe.mcPdg != 12)].index)
+    return dataframe
+
+# use this to breakdown mc Pdg of remaining reco nus
+
+
+def mcPartBreakdown(dataframe):
+    if(dataframe.empty):
+        print 'Dataframe is Empty!'
+        exit(1)
+    num_all = len(dataframe.index)
+    info_list = []
+
+    df_nue_cc = dataframe.drop(
+        dataframe[(dataframe.mcIsCC == False) | (dataframe.mcPdg != 12)].index)
+    num_nue_cc = len(df_nue_cc.index)
+    df_nue_nc = dataframe.drop(
+        dataframe[(dataframe.mcIsCC == True) | (dataframe.mcPdg != 12)].index)
+    num_nue_nc = len(df_nue_nc.index)
+    df_numu = dataframe.drop(
+        dataframe[(dataframe.mcPdg != 14)].index)
+    num_numu = len(df_numu.index)
+
+    # calculate the purity of the sample
+    #purity = float(num_nue_cc) / float(num_all) * 100.
+
+    info_list.append(num_all)
+    info_list.append(num_nue_cc)
+    info_list.append(num_nue_nc)
+    info_list.append(num_numu)
+    # info_list.append(purity)
+
+    print 'Number of Nue CC: ', num_nue_cc
+    print 'Number of Nue NC: ', num_nue_nc
+    print 'Number of Numu  : ', num_numu
+    # print 'Purity          : ', purity
+
+    return info_list
+
+# cosmic breakdown - most conservative
+
+
+def cosmicBreakdown(dataframe):
+    df_cosmic = dataframe.drop(
+        dataframe[(dataframe.mcNuPdg != 0)].index)
+    df_cosmic = df_cosmic.drop(
+        df_cosmic[(df_cosmic.pfoNuPdg != 12)].index)
+    num_cosmic = len(df_cosmic.index)
+
+    print 'Number of Cosmic: ', num_cosmic
+
+    return num_cosmic
+
+
 # get the primary mc particles
 
 
@@ -339,7 +398,17 @@ def getPfpNeutrino(dataframe):
 
 def getPfpNue(dataframe):
     dataframe = dataframe.drop(
-        dataframe[(dataframe.pfoPdg != 12)].index)
+        dataframe[dataframe.pfoNuPdg != 12].index)
+    return dataframe
+
+# get the pfp cosmic nue objects
+
+
+def getCosmicPfpNue(dataframe):
+    dataframe = dataframe.drop(
+        dataframe[(dataframe.mcNuPdg != 0)].index)
+    dataframe = dataframe.drop(
+        dataframe[(dataframe.pfoNuPdg != 12)].index)
     return dataframe
 
 # get all pfp objects
