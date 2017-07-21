@@ -1,4 +1,5 @@
 import math
+from reco_true_functions import *
 
 # Calculating the cross section requires a few things
 # xsec = N_total - N_bkg / (flux * ar_nucleons * efficiency)
@@ -21,3 +22,15 @@ def calcXSec(n_total, n_bkg, flux, efficiency):
     xsec_cc = (n_events * scale_factor) / (flux * num_nucleons * efficiency)
 
     return xsec_cc
+
+
+def printInfo(df, num_mc_cc_nue):
+    ##print statements##
+    df_nu = getPfpNeutrino(df)
+    info_list = mcPartBreakdown(df_nu)
+    num_nue_cosmic = cosmicBreakdown(df)
+    num_pfp_cc_nue = info_list[1]
+    print 'Efficiency: ', float(num_pfp_cc_nue) / float(num_mc_cc_nue) * 100.
+    purity = float(num_pfp_cc_nue) / \
+        (float(info_list[0]) + float(num_nue_cosmic)) * 100.
+    print 'Purity: ', purity
