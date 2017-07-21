@@ -481,7 +481,10 @@ for showers in tqdm(mcPdg_showers.index):
     # if mcNuPdg == 0 then it's not from a neutrino!
     if(cosmic_file == 'True'):
         if(df_pfp_showers.mcNuPdg[showers] == 0):
-            particle_list.append('Cosmic')
+            if(df_pfp_showers.mcPdg[showers] == 11):
+                particle_list.append('Cos e')
+            if(df_pfp_showers.mcPdg[showers] != 11):
+                particle_list.append('Cos')
             cosmic_pfp_counter = cosmic_pfp_counter + 1
             mcEnergy_cosmic.append(mc_energy_shower)
             pfpEnergy_cosmic.append(pfp_energy_shower)
@@ -502,7 +505,7 @@ for showers in tqdm(mcPdg_showers.index):
         mcEnergy_notElec.append(mc_energy_shower)
         pfpEnergy_notElec.append(pfp_energy_shower)
         diff_energy_notElec.append(pfp_energy_shower - mc_energy_shower)
-        particle_list.append('Photon')
+        particle_list.append('Photn')
         photon_pfp_hits.append(pfpHits)
         photon_mc_hits.append(mcHits)
         photon_ratio_hits.append(float(pfpHits) / float(mcHits))

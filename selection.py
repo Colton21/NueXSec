@@ -143,6 +143,14 @@ print ' ======= Final Values ======='
 print ' ============================ '
 printInfo(df, num_mc_cc_nue)
 
+
+###############################
+# cross section calculation
+###############################
+flux
+printXsec(df, num_mc_cc_nue, flux)
+
+
 ################
 #### timer #####
 ################

@@ -34,3 +34,16 @@ def printInfo(df, num_mc_cc_nue):
     purity = float(num_pfp_cc_nue) / \
         (float(info_list[0]) + float(num_nue_cosmic)) * 100.
     print 'Purity: ', purity
+
+
+def printXsec(df, num_mc_cc_nue, flux):
+    df_nu = getPfpNeutrino(df)
+    info_list = mcPartBreakdown(df_nu)
+    num_nue_cosmic = cosmicBreakdown(df)
+
+    n_total = float(info_list[0]) + float(num_nue_cosmic)
+    n_bkg = float(num_nue_cosmic) + float(info_list[2]) + float(info_list[3])
+    efficiency = float(num_pfp_cc_nue) / float(num_mc_cc_nue) * 100.
+    xsec_cc = calcXSec(n_total, n_bkg, flux, efficiency)
+
+    print 'Nue CC Xsec: ', xsec_cc
