@@ -15,7 +15,7 @@ from reco_true_functions import *
 def calcXSec(n_total, n_bkg, flux, efficiency):
     n_events = n_total - n_bkg
     # scale flux and events
-    scale_factor = 2.4 * math.pow(10, 17)
+    scale_factor = 2.4 * math.pow(10, 17)  # POT / nue
     # number of nucleons
     num_nucleons = 4.76 * math.pow(10, 31)
 
@@ -40,7 +40,7 @@ def printXsec(df, num_mc_cc_nue, flux):
     df_nu = getPfpNeutrino(df)
     info_list = mcPartBreakdown(df_nu)
     num_nue_cosmic = cosmicBreakdown(df)
-
+    num_pfp_cc_nue = info_list[1]
     n_total = float(info_list[0]) + float(num_nue_cosmic)
     n_bkg = float(num_nue_cosmic) + float(info_list[2]) + float(info_list[3])
     efficiency = float(num_pfp_cc_nue) / float(num_mc_cc_nue) * 100.

@@ -147,7 +147,9 @@ printInfo(df, num_mc_cc_nue)
 ###############################
 # cross section calculation
 ###############################
-flux
+# flux = 3.6 * pow(10, 20) # from summing input file
+# flux = 4.68 * pow(10, 21) #from 9500 * 2.4e17 nue cc / POT
+flux = 1.24 * pow(10, 21)  # from counting num nue cc and scaling
 printXsec(df, num_mc_cc_nue, flux)
 
 
