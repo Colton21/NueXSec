@@ -1034,6 +1034,27 @@ plt.colorbar()
 fig_shower_hits_2d.savefig('reco-true_shower_vtx_true_vtxZ.pdf')
 plt.close()
 
+fig_vtx_vtx_2d = plt.figure()
+ax = fig_vtx_vtx_2d.add_subplot(111)
+_ = plt.hist2d(vtx_Z_pfp_elec, vtx_Y_pfp_elec,
+               20, cmap=cm.summer, norm=LogNorm())
+ax.set_xlabel('Reco Electron Vtx Z')
+ax.set_ylabel('Reco Electron Vtx Y')
+plt.colorbar()
+fig_vtx_vtx_2d.savefig('electron_reco_vtx_zy.pdf')
+plt.close()
+
+if(cosmic_file == 'True'):
+    fig_vtx_vtx_cosmic_2d = plt.figure()
+    ax = fig_vtx_vtx_cosmic_2d.add_subplot(111)
+    _ = plt.hist2d(vtx_Z_pfp_cosmic, vtx_Y_pfp_cosmic,
+                   20, cmap=cm.summer, norm=LogNorm())
+    ax.set_xlabel('Reco Cosmic Vtx Z')
+    ax.set_ylabel('Reco Cosmic Vtx Y')
+    plt.colorbar()
+    fig_vtx_vtx_cosmic_2d.savefig('cosmic_reco_vtx_zy.pdf')
+    plt.close()
+
 # fig_shower_hits_2d = plt.figure()
 # ax = fig_shower_hits_2d.add_subplot(111)
 # _ = plt.hist2d(pfpEnergy_elec, vtx_diff_elec,
@@ -1300,8 +1321,9 @@ diff_nue_shower_vtx_elec = []
 diff_nue_shower_vtx_gamma = []
 diff_nue_shower_vtx_prot = []
 for nues in tqdm(df_pfp_nues.index):
+    # this is so we only look at true nues?
     if(mcPdg_nue[nues] != pfpPdg_nue[nues]):
-        tqdm.write('Nue: MC PDG and PFP PDG do not match!')
+        #tqdm.write('Nue and Shower: MC PDG and PFP PDG do not match!')
         continue
 
     temp_df1 = df_pfp_showers.drop(

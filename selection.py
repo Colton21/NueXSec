@@ -70,7 +70,11 @@ print 'Good Fraction: ', good_fraction
 #########################################################
 df_mc_nu = getMCNeutrino(df)
 df_mc_cc_nue = getMCCCNue(df_mc_nu)
+df_mc_nc_nue = getMCNCNue(df_mc_nu)
 num_mc_cc_nue = len(df_mc_cc_nue.index)
+num_mc_nc_nue = len(df_mc_nc_nue.index)
+print 'True Nue CC: ', num_mc_cc_nue
+print 'True Nue NC: ', num_mc_nc_nue
 ##print statements##
 printInfo(df, num_mc_cc_nue)
 
@@ -149,6 +153,7 @@ printInfo(df, num_mc_cc_nue)
 ###############################
 # flux = 3.6 * pow(10, 20) # from summing input file
 # flux = 4.68 * pow(10, 21) #from 9500 * 2.4e17 nue cc / POT
+# flux = 9.4 * pow(10, 20) #from 3941 nue cc
 flux = 1.24 * pow(10, 21)  # from counting num nue cc and scaling
 printXsec(df, num_mc_cc_nue, flux)
 

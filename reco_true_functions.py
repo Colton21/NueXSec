@@ -324,7 +324,13 @@ def getMCNeutrino(dataframe):
 
 def getMCCCNue(dataframe):
     dataframe = dataframe.drop(
-        dataframe[(dataframe.mcIsCC != True) & (dataframe.mcPdg != 12)].index)
+        dataframe[(dataframe.mcIsCC == False) | (dataframe.mcPdg != 12)].index)
+    return dataframe
+
+
+def getMCNCNue(dataframe):
+    dataframe = dataframe.drop(
+        dataframe[(dataframe.mcIsCC == True) | (dataframe.mcPdg != 12)].index)
     return dataframe
 
 # use this to breakdown mc Pdg of remaining reco nus
