@@ -283,6 +283,12 @@ vtx_diff_X_elec = []
 vtx_diff_Y_elec = []
 vtx_diff_Z_elec = []
 vtx_diff_elec = []
+vtx_diff_pion = []
+vtx_diff_prot = []
+vtx_diff_gamma = []
+vtx_diff_cosmic = []
+vtx_diff_cosmic_e = []
+vtx_diff_neut = []
 vtx_Z_pfp_shwr = []
 vtx_X_pfp_elec = []
 vtx_X_pfp_prot = []
@@ -439,6 +445,7 @@ for showers in tqdm(mcPdg_showers.index):
             pion_completeness.append(this_completeness)
             pfpLength_pion.append(pfp_length)
             mcLength_pion.append(mc_length)
+            vtx_diff_pion.append(total_diff)
             pfpVertexToWall_pion.append(distToWall(
                 pfpVtxX_shwr[showers], pfpVtxY_shwr[showers], pfpVtxZ_shwr[showers]))
         if(mcPdg_shower == 2112):
@@ -452,6 +459,7 @@ for showers in tqdm(mcPdg_showers.index):
             neutron_completeness.append(this_completeness)
             pfpLength_neut.append(pfp_length)
             mcLength_neut.append(mc_length)
+            vtx_diff_neut.append(total_diff)
             pfpVertexToWall_neut.append(distToWall(
                 pfpVtxX_shwr[showers], pfpVtxY_shwr[showers], pfpVtxZ_shwr[showers]))
         if(mcPdg_shower == 2212):
@@ -468,6 +476,7 @@ for showers in tqdm(mcPdg_showers.index):
             proton_completeness.append(this_completeness)
             pfpLength_prot.append(pfp_length)
             mcLength_prot.append(mc_length)
+            vtx_diff_prot.append(total_diff)
             pfpVertexToWall_prot.append(distToWall(
                 pfpVtxX_shwr[showers], pfpVtxY_shwr[showers], pfpVtxZ_shwr[showers]))
             # directions
@@ -483,8 +492,10 @@ for showers in tqdm(mcPdg_showers.index):
         if(df_pfp_showers.mcNuPdg[showers] == 0):
             if(df_pfp_showers.mcPdg[showers] == 11):
                 particle_list.append('Cos e')
+                vtx_diff_cosmic_e.append(total_diff)
             if(df_pfp_showers.mcPdg[showers] != 11):
                 particle_list.append('Cos')
+                vtx_diff_cosmic.append(total_diff)
             cosmic_pfp_counter = cosmic_pfp_counter + 1
             mcEnergy_cosmic.append(mc_energy_shower)
             pfpEnergy_cosmic.append(pfp_energy_shower)
@@ -518,6 +529,7 @@ for showers in tqdm(mcPdg_showers.index):
         photon_completeness.append(this_completeness)
         pfpLength_gamma.append(pfp_length)
         mcLength_gamma.append(mc_length)
+        vtx_diff_gamma.append(total_diff)
         pfpVertexToWall_gamma.append(distToWall(
             pfpVtxX_shwr[showers], pfpVtxY_shwr[showers], pfpVtxZ_shwr[showers]))
 
@@ -1130,6 +1142,24 @@ plt.legend()
 fig_vtx_diff_shwr_total.savefig('reco-true_shower_vtx_total.pdf')
 plt.close()
 
+# histogram of vtx reco - true by type
+fig_vtx_diff = plt.figure()
+ax = fig_vtx_diff.add_subplot(111)
+if(cosmic_file == 'False'):
+    mult = [vtx_diff_pion, vtx_diff_neut,
+            vtx_diff_prot, vtx_diff_gamma, vtx_diff_elec]
+    _ = plt.hist(mult, 40, (0, 150), histtype='bar', fill=True, stacked=True, color=[
+        'wheat', 'goldenrod', 'darkmagenta', 'skyblue', 'tomato'], label=['Pion', 'Neutron', 'Proton', 'Photon', 'Electron'])
+if(cosmic_file == 'True'):
+    mult = [vtx_diff_pion, vtx_diff_neut,
+            vtx_diff_prot, vtx_diff_gamma, vtx_diff_elec, vtx_diff_cosmic, vtx_diff_cosmic_e]
+    _ = plt.hist(mult, 40, (0, 150), histtype='bar', fill=True, stacked=True, color=[
+        'wheat', 'goldenrod', 'darkmagenta', 'skyblue', 'tomato', 'darkslategray', 'aquamarine'], label=['Pion', 'Neutron', 'Proton', 'Photon', 'Electron', 'Cosmics', 'Cosmic e'])
+ax.set_xlabel('Reco - True Vertex Distance [cm]')
+plt.legend()
+fig_vtx_diff.savefig('reco-true_shower_total_vtx_diff_type.pdf')
+plt.close()
+
 # histograms for direction
 fig_dir_shwr_diff = plt.figure()
 ax = fig_dir_shwr_diff.add_subplot(111)
@@ -1237,7 +1267,7 @@ pfp_nues_counter = 0
 all_pfp_nues_counter = 0
 for nues in tqdm(mcPdg_nue.index):
     if(mcPdg_nue[nues] != pfpPdg_nue[nues]):
-        tqdm.write('Nue: MC PDG and PFP PDG do not match!')
+        #tqdm.write('Nue: MC PDG and PFP PDG do not match!')
         continue
     n_available_hits_nue.append(available_hits_nue[nues])
     if(mcPdg_nue[nues] == 12):
