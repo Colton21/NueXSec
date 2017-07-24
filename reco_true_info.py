@@ -282,6 +282,21 @@ vtx_diff_shwr = []
 vtx_diff_X_elec = []
 vtx_diff_Y_elec = []
 vtx_diff_Z_elec = []
+vtx_diff_X_pion = []
+vtx_diff_Y_pion = []
+vtx_diff_Z_pion = []
+vtx_diff_X_prot = []
+vtx_diff_Y_prot = []
+vtx_diff_Z_prot = []
+vtx_diff_X_gamma = []
+vtx_diff_Y_gamma = []
+vtx_diff_Z_gamma = []
+vtx_diff_X_neut = []
+vtx_diff_Y_neut = []
+vtx_diff_Z_neut = []
+vtx_diff_X_cosmic = []
+vtx_diff_Y_cosmic = []
+vtx_diff_Z_cosmic = []
 vtx_diff_elec = []
 vtx_diff_pion = []
 vtx_diff_prot = []
@@ -458,6 +473,9 @@ for showers in tqdm(mcPdg_showers.index):
             pfpLength_pion.append(pfp_length)
             mcLength_pion.append(mc_length)
             vtx_diff_pion.append(total_diff)
+            vtx_diff_X_pion.append(x_diff)
+            vtx_diff_Y_pion.append(y_diff)
+            vtx_diff_Z_pion.append(z_diff)
             # directions
             pfpDirX_event_pion.append(
                 tuple((pfpDirX_shwr[showers], df_pfp_showers.event[showers])))
@@ -479,6 +497,9 @@ for showers in tqdm(mcPdg_showers.index):
             pfpLength_neut.append(pfp_length)
             mcLength_neut.append(mc_length)
             vtx_diff_neut.append(total_diff)
+            vtx_diff_X_neut.append(x_diff)
+            vtx_diff_Y_neut.append(y_diff)
+            vtx_diff_Z_neut.append(z_diff)
             # directions
             pfpDirX_event_neut.append(
                 tuple((pfpDirX_shwr[showers], df_pfp_showers.event[showers])))
@@ -505,6 +526,9 @@ for showers in tqdm(mcPdg_showers.index):
             vtx_diff_prot.append(total_diff)
             pfpVertexToWall_prot.append(distToWall(
                 pfpVtxX_shwr[showers], pfpVtxY_shwr[showers], pfpVtxZ_shwr[showers]))
+            vtx_diff_X_prot.append(x_diff)
+            vtx_diff_Y_prot.append(y_diff)
+            vtx_diff_Z_prot.append(z_diff)
             # directions
             pfpDirX_event_prot.append(
                 tuple((pfpDirX_shwr[showers], df_pfp_showers.event[showers])))
@@ -535,6 +559,9 @@ for showers in tqdm(mcPdg_showers.index):
             cosmic_completeness.append(this_completeness)
             pfpLength_cosmic.append(pfp_length)
             mcLength_cosmic.append(mc_length)
+            vtx_diff_X_cosmic.append(x_diff)
+            vtx_diff_Y_cosmic.append(y_diff)
+            vtx_diff_Z_cosmic.append(z_diff)
             # directions
             pfpDirX_event_cosmic.append(
                 tuple((pfpDirX_shwr[showers], df_pfp_showers.event[showers])))
@@ -563,6 +590,9 @@ for showers in tqdm(mcPdg_showers.index):
         pfpLength_gamma.append(pfp_length)
         mcLength_gamma.append(mc_length)
         vtx_diff_gamma.append(total_diff)
+        vtx_diff_X_gamma.append(x_diff)
+        vtx_diff_Y_gamma.append(y_diff)
+        vtx_diff_Z_gamma.append(z_diff)
         # directions
         pfpDirX_event_gamma.append(
             tuple((pfpDirX_shwr[showers], df_pfp_showers.event[showers])))
@@ -1169,6 +1199,43 @@ _ = plt.hist(mult_vtx, 80, (-80, 80), histtype='bar', fill=True, stacked=True, c
 ax.set_xlabel('Reco - True Shower (Electron) Vertex [cm]')
 plt.legend()
 fig_vtx_diff_elec.savefig('reco-true_electron_vtx.pdf')
+plt.close()
+###
+# histograms for X vtx, shower type
+###
+fig_vtx_diff = plt.figure()
+ax = fig_vtx_diff.add_subplot(111)
+mult_vtx = [vtx_diff_X_pion, vtx_diff_X_neut,
+            vtx_diff_X_prot, vtx_diff_X_gamma, vtx_diff_X_elec]
+_ = plt.hist(mult_vtx, 80, (-80, 80), histtype='bar', fill=True, stacked=True, color=[
+    'wheat', 'goldenrod', 'darkmagenta', 'skyblue', 'tomato'], label=['Pion', 'Neutron', 'Proton', 'Photon', 'Electron'])
+ax.set_xlabel('Reco - True Shower X Vertex [cm]')
+plt.legend()
+fig_vtx_diff.savefig('reco-true_X_vtx_type.pdf')
+plt.close()
+
+# histograms for Y vtx, shower type
+fig_vtx_diff = plt.figure()
+ax = fig_vtx_diff.add_subplot(111)
+mult_vtx = [vtx_diff_Y_pion, vtx_diff_Y_neut,
+            vtx_diff_Y_prot, vtx_diff_Y_gamma, vtx_diff_Y_elec]
+_ = plt.hist(mult_vtx, 80, (-80, 80), histtype='bar', fill=True, stacked=True, color=[
+    'wheat', 'goldenrod', 'darkmagenta', 'skyblue', 'tomato'], label=['Pion', 'Neutron', 'Proton', 'Photon', 'Electron'])
+ax.set_xlabel('Reco - True Shower Y Vertex [cm]')
+plt.legend()
+fig_vtx_diff.savefig('reco-true_Y_vtx_type.pdf')
+plt.close()
+
+# histograms for Z vtx, shower type
+fig_vtx_diff = plt.figure()
+ax = fig_vtx_diff.add_subplot(111)
+mult_vtx = [vtx_diff_Z_pion, vtx_diff_Z_neut,
+            vtx_diff_Z_prot, vtx_diff_Z_gamma, vtx_diff_Z_elec]
+_ = plt.hist(mult_vtx, 80, (-80, 80), histtype='bar', fill=True, stacked=True, color=[
+    'wheat', 'goldenrod', 'darkmagenta', 'skyblue', 'tomato'], label=['Pion', 'Neutron', 'Proton', 'Photon', 'Electron'])
+ax.set_xlabel('Reco - True Shower Z Vertex [cm]')
+plt.legend()
+fig_vtx_diff.savefig('reco-true_Z_vtx_type.pdf')
 plt.close()
 
 # histograms for vtx - total distances
