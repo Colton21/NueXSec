@@ -380,6 +380,18 @@ pfpDirZ_event_prot = []
 pfpDirX_event_elec = []
 pfpDirY_event_elec = []
 pfpDirZ_event_elec = []
+pfpDirX_event_neut = []
+pfpDirY_event_neut = []
+pfpDirZ_event_neut = []
+pfpDirX_event_pion = []
+pfpDirY_event_pion = []
+pfpDirZ_event_pion = []
+pfpDirX_event_cosmic = []
+pfpDirY_event_cosmic = []
+pfpDirZ_event_cosmic = []
+pfpDirX_event_gamma = []
+pfpDirY_event_gamma = []
+pfpDirZ_event_gamma = []
 
 # Begin looping showers
 for showers in tqdm(mcPdg_showers.index):
@@ -446,6 +458,13 @@ for showers in tqdm(mcPdg_showers.index):
             pfpLength_pion.append(pfp_length)
             mcLength_pion.append(mc_length)
             vtx_diff_pion.append(total_diff)
+            # directions
+            pfpDirX_event_pion.append(
+                tuple((pfpDirX_shwr[showers], df_pfp_showers.event[showers])))
+            pfpDirY_event_pion.append(
+                tuple((pfpDirY_shwr[showers], df_pfp_showers.event[showers])))
+            pfpDirZ_event_pion.append(
+                tuple((pfpDirZ_shwr[showers], df_pfp_showers.event[showers])))
             pfpVertexToWall_pion.append(distToWall(
                 pfpVtxX_shwr[showers], pfpVtxY_shwr[showers], pfpVtxZ_shwr[showers]))
         if(mcPdg_shower == 2112):
@@ -460,6 +479,13 @@ for showers in tqdm(mcPdg_showers.index):
             pfpLength_neut.append(pfp_length)
             mcLength_neut.append(mc_length)
             vtx_diff_neut.append(total_diff)
+            # directions
+            pfpDirX_event_neut.append(
+                tuple((pfpDirX_shwr[showers], df_pfp_showers.event[showers])))
+            pfpDirY_event_neut.append(
+                tuple((pfpDirY_shwr[showers], df_pfp_showers.event[showers])))
+            pfpDirZ_event_neut.append(
+                tuple((pfpDirZ_shwr[showers], df_pfp_showers.event[showers])))
             pfpVertexToWall_neut.append(distToWall(
                 pfpVtxX_shwr[showers], pfpVtxY_shwr[showers], pfpVtxZ_shwr[showers]))
         if(mcPdg_shower == 2212):
@@ -509,6 +535,13 @@ for showers in tqdm(mcPdg_showers.index):
             cosmic_completeness.append(this_completeness)
             pfpLength_cosmic.append(pfp_length)
             mcLength_cosmic.append(mc_length)
+            # directions
+            pfpDirX_event_cosmic.append(
+                tuple((pfpDirX_shwr[showers], df_pfp_showers.event[showers])))
+            pfpDirY_event_cosmic.append(
+                tuple((pfpDirY_shwr[showers], df_pfp_showers.event[showers])))
+            pfpDirZ_event_cosmic.append(
+                tuple((pfpDirZ_shwr[showers], df_pfp_showers.event[showers])))
             pfpVertexToWall_cosmic.append(distToWall(
                 pfpVtxX_shwr[showers], pfpVtxY_shwr[showers], pfpVtxZ_shwr[showers]))
     if(mcPdg_shower == 22):
@@ -530,6 +563,13 @@ for showers in tqdm(mcPdg_showers.index):
         pfpLength_gamma.append(pfp_length)
         mcLength_gamma.append(mc_length)
         vtx_diff_gamma.append(total_diff)
+        # directions
+        pfpDirX_event_gamma.append(
+            tuple((pfpDirX_shwr[showers], df_pfp_showers.event[showers])))
+        pfpDirY_event_gamma.append(
+            tuple((pfpDirY_shwr[showers], df_pfp_showers.event[showers])))
+        pfpDirZ_event_gamma.append(
+            tuple((pfpDirZ_shwr[showers], df_pfp_showers.event[showers])))
         pfpVertexToWall_gamma.append(distToWall(
             pfpVtxX_shwr[showers], pfpVtxY_shwr[showers], pfpVtxZ_shwr[showers]))
 
@@ -1267,7 +1307,7 @@ pfp_nues_counter = 0
 all_pfp_nues_counter = 0
 for nues in tqdm(mcPdg_nue.index):
     if(mcPdg_nue[nues] != pfpPdg_nue[nues]):
-        #tqdm.write('Nue: MC PDG and PFP PDG do not match!')
+        # tqdm.write('Nue: MC PDG and PFP PDG do not match!')
         continue
     n_available_hits_nue.append(available_hits_nue[nues])
     if(mcPdg_nue[nues] == 12):
@@ -1353,7 +1393,7 @@ diff_nue_shower_vtx_prot = []
 for nues in tqdm(df_pfp_nues.index):
     # this is so we only look at true nues?
     if(mcPdg_nue[nues] != pfpPdg_nue[nues]):
-        #tqdm.write('Nue and Shower: MC PDG and PFP PDG do not match!')
+        # tqdm.write('Nue and Shower: MC PDG and PFP PDG do not match!')
         continue
 
     temp_df1 = df_pfp_showers.drop(
@@ -1407,7 +1447,7 @@ plt.close()
 # event number, tuples
 i = 0
 prot_elec_dot = []
-for tup1 in pfpDirX_event_prot:
+for tup1 in tqdm(pfpDirX_event_prot):
     j = 0
     event_i = pfpDirX_event_prot[i][1]
     dirX_prot = pfpDirX_event_prot[i][0]
@@ -1429,14 +1469,117 @@ for tup1 in pfpDirX_event_prot:
             j = j + 1
             continue
 
+i = 0
+pion_elec_dot = []
+for tup1 in tqdm(pfpDirX_event_pion):
+    j = 0
+    event_i = pfpDirX_event_pion[i][1]
+    dirX_pion = pfpDirX_event_pion[i][0]
+    dirY_pion = pfpDirY_event_pion[i][0]
+    dirZ_pion = pfpDirZ_event_pion[i][0]
+    # print 'Proton Dir: ', dirX_prot, dirY_prot, dirZ_prot
+    i = i + 1
+    for tup2 in pfpDirX_event_elec:
+        event_j = pfpDirX_event_elec[j][1]
+        if(event_i == event_j):
+            dirX_elec = pfpDirX_event_elec[j][0]
+            dirY_elec = pfpDirY_event_elec[j][0]
+            dirZ_elec = pfpDirZ_event_elec[j][0]
+            dotprod = np.arccos((dirX_pion * dirX_elec) +
+                                (dirY_pion * dirY_elec) + (dirZ_pion * dirZ_elec)) * (180 / 3.1415)
+            pion_elec_dot.append(dotprod)
+            j = j + 1
+        if(event_i != event_j):
+            j = j + 1
+            continue
+
+i = 0
+cosmic_elec_dot = []
+for tup1 in tqdm(pfpDirX_event_cosmic):
+    j = 0
+    event_i = pfpDirX_event_cosmic[i][1]
+    dirX_cosmic = pfpDirX_event_cosmic[i][0]
+    dirY_cosmic = pfpDirY_event_cosmic[i][0]
+    dirZ_cosmic = pfpDirZ_event_cosmic[i][0]
+    # print 'Proton Dir: ', dirX_prot, dirY_prot, dirZ_prot
+    i = i + 1
+    for tup2 in pfpDirX_event_elec:
+        event_j = pfpDirX_event_elec[j][1]
+        if(event_i == event_j):
+            dirX_elec = pfpDirX_event_elec[j][0]
+            dirY_elec = pfpDirY_event_elec[j][0]
+            dirZ_elec = pfpDirZ_event_elec[j][0]
+            temp = ((dirX_cosmic * dirX_elec) + (dirY_cosmic *
+                                                 dirY_elec) + (dirZ_cosmic * dirZ_elec))
+            if(temp > 1.000):
+                temp = 1.000
+            if(temp < -1.000):
+                temp = -1.00
+            dotprod = np.arccos(temp) * (180 / 3.1415)
+            cosmic_elec_dot.append(dotprod)
+            j = j + 1
+        if(event_i != event_j):
+            j = j + 1
+            continue
+
+i = 0
+neut_elec_dot = []
+for tup1 in tqdm(pfpDirX_event_neut):
+    j = 0
+    event_i = pfpDirX_event_neut[i][1]
+    dirX_neut = pfpDirX_event_neut[i][0]
+    dirY_neut = pfpDirY_event_neut[i][0]
+    dirZ_neut = pfpDirZ_event_neut[i][0]
+    # print 'Proton Dir: ', dirX_prot, dirY_prot, dirZ_prot
+    i = i + 1
+    for tup2 in pfpDirX_event_elec:
+        event_j = pfpDirX_event_elec[j][1]
+        if(event_i == event_j):
+            dirX_elec = pfpDirX_event_elec[j][0]
+            dirY_elec = pfpDirY_event_elec[j][0]
+            dirZ_elec = pfpDirZ_event_elec[j][0]
+            dotprod = np.arccos((dirX_neut * dirX_elec) +
+                                (dirY_neut * dirY_elec) + (dirZ_neut * dirZ_elec)) * (180 / 3.1415)
+            neut_elec_dot.append(dotprod)
+            j = j + 1
+        if(event_i != event_j):
+            j = j + 1
+            continue
+
+i = 0
+gamma_elec_dot = []
+for tup1 in tqdm(pfpDirX_event_gamma):
+    j = 0
+    event_i = pfpDirX_event_gamma[i][1]
+    dirX_gamma = pfpDirX_event_gamma[i][0]
+    dirY_gamma = pfpDirY_event_gamma[i][0]
+    dirZ_gamma = pfpDirZ_event_gamma[i][0]
+    # print 'Proton Dir: ', dirX_prot, dirY_prot, dirZ_prot
+    i = i + 1
+    for tup2 in pfpDirX_event_elec:
+        event_j = pfpDirX_event_elec[j][1]
+        if(event_i == event_j):
+            dirX_elec = pfpDirX_event_elec[j][0]
+            dirY_elec = pfpDirY_event_elec[j][0]
+            dirZ_elec = pfpDirZ_event_elec[j][0]
+            dotprod = np.arccos((dirX_gamma * dirX_elec) +
+                                (dirY_gamma * dirY_elec) + (dirZ_gamma * dirZ_elec)) * (180 / 3.1415)
+            gamma_elec_dot.append(dotprod)
+            j = j + 1
+        if(event_i != event_j):
+            j = j + 1
+            continue
+
 # histogram of nue vtx to shower vtx
 fig_vtx_diff = plt.figure()
 ax = fig_vtx_diff.add_subplot(111)
-_ = plt.hist(prot_elec_dot, 40, (0, 180), histtype='bar', fill=True, stacked=False, color=[
-    'tomato'], label=['Dot Product'])
-ax.set_xlabel('Proton:Electron Reco Shower Direction Dot Product')
+mult = [prot_elec_dot, pion_elec_dot,
+        neut_elec_dot, cosmic_elec_dot, gamma_elec_dot]
+_ = plt.hist(mult, 40, (0, 180), histtype='bar', fill=True, stacked=True, color=[
+    'wheat', 'goldenrod', 'darkmagenta', 'skyblue', 'tomato'], label=['Prot-Elec', 'Pion-Elec', 'Neut-Elec', 'Cosmic-Elec', 'Phot-Elec'])
+ax.set_xlabel('Reco Elec:Bkg Shower Direction Dot Product')
 plt.legend()
-fig_vtx_diff.savefig('proton_electron_shower_dot_product.pdf')
+fig_vtx_diff.savefig('electron_shower_dot_product.pdf')
 plt.close()
 
 ####################
