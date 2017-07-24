@@ -42,6 +42,11 @@ def flashRecoVtxDist(dataframe_reco, dataframe_opt, distance):
 
     failEvents = []
     yz_dist_list = []
+    yz_dist_list_elec = []
+    yz_dist_list_prot = []
+    yz_dist_list_neut = []
+    yz_dist_list_pion = []
+    yz_dist_list_gamma = []
     yz_dist_list_cosmic = []
     shwr_to_vtx_dist = distance
     # make sure we're only looking at pfp showers
@@ -69,15 +74,24 @@ def flashRecoVtxDist(dataframe_reco, dataframe_opt, distance):
         opt_vtxY = temp_df2.get_value(lrgFlash_index, 'OpFlashCenterY')
         opt_vtxZ = temp_df2.get_value(lrgFlash_index, 'OpFlashCenterZ')
         for shower in temp_df1.index:
-            truePdg = dataframe_showers.mcNuPdg[shower]
+            trueNuPdg = dataframe_showers.mcNuPdg[shower]
+            truePdg = dataframe_showers.mcPdg[shower]
             shower_vtxY = dataframe_showers.pfoVtxY[shower]
             shower_vtxZ = dataframe_showers.pfoVtxZ[shower]
             yz_dist = np.sqrt(((opt_vtxY - shower_vtxY) * (opt_vtxY - shower_vtxY)) +
                               ((opt_vtxZ - shower_vtxZ) * (opt_vtxZ - shower_vtxZ)))
-            if(truePdg == 0):
+            if(trueNuPdg == 0):
                 yz_dist_list_cosmic.append(yz_dist)
-            if(truePdg != 0):
-                yz_dist_list.append(yz_dist)
+            if(truePdg == 11 and trueNuPdg != 0):
+                yz_dist_list_elec.append(yz_dist)
+            if((truePdg == 211 or truePdg == -211) and trueNuPdg != 0):
+                yz_dist_list_pion.append(yz_dist)
+            if(truePdg == 2212 and trueNuPdg != 0):
+                yz_dist_list_prot.append(yz_dist)
+            if(truePdg == 2112 and trueNuPdg != 0):
+                yz_dist_list_neut.append(yz_dist)
+            if(truePdg == 22 and trueNuPdg != 0):
+                yz_dist_list_gamma.append(yz_dist)
             if(yz_dist <= shwr_to_vtx_dist):
                 event_IsBad = False
             if(event_IsBad == False):
@@ -93,9 +107,10 @@ def flashRecoVtxDist(dataframe_reco, dataframe_opt, distance):
     # let's just do the plotting here for now...
     fig = plt.figure()
     ax = fig.add_subplot(111)
-    mult = [yz_dist_list, yz_dist_list_cosmic]
+    mult = [yz_dist_list_pion, yz_dist_list_neut, yz_dist_list_prot,
+            yz_dist_list_gamma, yz_dist_list_elec, yz_dist_list_cosmic]
     _ = plt.hist(mult, 50, (0, 300), histtype='bar',
-                 fill=True, stacked=True, color=['tomato', 'darkslategray'], label=['Nue', 'Cosmics'])
+                 fill=True, stacked=True, color=['wheat', 'goldenrod', 'darkmagenta', 'skyblue', 'tomato', 'darkslategray'], label=['Pion', 'Neutron', 'Proton', 'Photon', 'Electron', 'Cosmics'])
     ax.set_xlabel('Dist. Reco Shower Vertex to Largest Flash YZ [cm]')
     plt.legend()
     plt.show()
