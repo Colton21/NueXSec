@@ -2,6 +2,7 @@
 *.pyc
 nue_only/*
 nue_cosmics/*
+neutrino_summer_school_poster/*
 *.png
 *.pdf
 .DS_Store

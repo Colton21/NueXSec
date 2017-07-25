@@ -239,6 +239,12 @@ diff_energy_pion = []
 diff_energy_neut = []
 diff_energy_gamma = []
 diff_energy_cosmic = []
+diff_energy_pion_p = []
+diff_energy_prot_p = []
+diff_energy_neut_p = []
+diff_energy_gamma_p = []
+diff_energy_elec_p = []
+diff_energy_cosmic_p = []
 # opening angle
 openangle_pfp_shwr = df_pfp_showers.pfoOpenAngle
 pfpOpenAngle_shwr = []
@@ -336,6 +342,23 @@ dir_diff_X_elec = []
 dir_diff_Y_elec = []
 dir_diff_Z_elec = []
 dir_diff_elec = []
+dir_diff_prot = []
+dir_diff_pion = []
+dir_diff_gamma = []
+dir_diff_neut = []
+dir_diff_cosmic = []
+pfp_theta_elec = []
+pfp_theta_gamma = []
+pfp_theta_pion = []
+pfp_theta_prot = []
+pfp_theta_neut = []
+pfp_theta_cosmic = []
+pfp_phi_elec = []
+pfp_phi_gamma = []
+pfp_phi_pion = []
+pfp_phi_prot = []
+pfp_phi_neut = []
+pfp_phi_cosmic = []
 # interaciton modes
 mcEnergy_ccqe = []
 mcEnergy_res = []
@@ -431,6 +454,9 @@ for showers in tqdm(mcPdg_showers.index):
     vtx_Z_pfp_shwr.append(pfpVtxZ_shwr[showers])
     vtx_Z_mc_shwr.append(mcVtxZ_shwr[showers])
     # direction
+    pfp_theta = (np.arccos(pfpDirZ_shwr[showers]) * (180 / 3.1415))
+    pfp_phi = (np.arctan2(pfpDirY_shwr[showers], pfpDirX_shwr[
+        showers]) * (180 / 3.1415))
     dir_x_diff_shwr = pfpDirX_shwr[showers] - mcDirX_shwr[showers]
     dir_y_diff_shwr = pfpDirY_shwr[showers] - mcDirY_shwr[showers]
     dir_z_diff_shwr = pfpDirZ_shwr[showers] - mcDirZ_shwr[showers]
@@ -469,6 +495,8 @@ for showers in tqdm(mcPdg_showers.index):
             mcEnergy_pion.append(mc_energy_shower)
             pfpEnergy_pion.append(pfp_energy_shower)
             diff_energy_pion.append(pfp_energy_shower - mc_energy_shower)
+            diff_energy_pion_p.append(
+                (pfp_energy_shower - mc_energy_shower) / mc_energy_shower)
             pion_completeness.append(this_completeness)
             pfpLength_pion.append(pfp_length)
             mcLength_pion.append(mc_length)
@@ -477,6 +505,9 @@ for showers in tqdm(mcPdg_showers.index):
             vtx_diff_Y_pion.append(y_diff)
             vtx_diff_Z_pion.append(z_diff)
             # directions
+            dir_diff_pion.append(dir_dot_shwr)
+            pfp_theta_pion.append(pfp_theta)
+            pfp_phi_pion.append(pfp_phi)
             pfpDirX_event_pion.append(
                 tuple((pfpDirX_shwr[showers], df_pfp_showers.event[showers])))
             pfpDirY_event_pion.append(
@@ -493,6 +524,8 @@ for showers in tqdm(mcPdg_showers.index):
             mcEnergy_neut.append(mc_energy_shower)
             pfpEnergy_neut.append(pfp_energy_shower)
             diff_energy_neut.append(pfp_energy_shower - mc_energy_shower)
+            diff_energy_neut_p.append(
+                (pfp_energy_shower - mc_energy_shower) / mc_energy_shower)
             neutron_completeness.append(this_completeness)
             pfpLength_neut.append(pfp_length)
             mcLength_neut.append(mc_length)
@@ -501,6 +534,9 @@ for showers in tqdm(mcPdg_showers.index):
             vtx_diff_Y_neut.append(y_diff)
             vtx_diff_Z_neut.append(z_diff)
             # directions
+            dir_diff_neut.append(dir_dot_shwr)
+            pfp_theta_neut.append(pfp_theta)
+            pfp_phi_neut.append(pfp_phi)
             pfpDirX_event_neut.append(
                 tuple((pfpDirX_shwr[showers], df_pfp_showers.event[showers])))
             pfpDirY_event_neut.append(
@@ -517,6 +553,8 @@ for showers in tqdm(mcPdg_showers.index):
             mcEnergy_prot.append(mc_energy_shower)
             pfpEnergy_prot.append(pfp_energy_shower)
             diff_energy_prot.append(pfp_energy_shower - mc_energy_shower)
+            diff_energy_prot_p.append(
+                (pfp_energy_shower - mc_energy_shower) / mc_energy_shower)
             vtx_X_pfp_prot.append(pfpVtxX_shwr[showers])
             vtx_Y_pfp_prot.append(pfpVtxY_shwr[showers])
             vtx_Z_pfp_prot.append(pfpVtxZ_shwr[showers])
@@ -530,6 +568,9 @@ for showers in tqdm(mcPdg_showers.index):
             vtx_diff_Y_prot.append(y_diff)
             vtx_diff_Z_prot.append(z_diff)
             # directions
+            dir_diff_prot.append(dir_dot_shwr)
+            pfp_theta_prot.append(pfp_theta)
+            pfp_phi_prot.append(pfp_phi)
             pfpDirX_event_prot.append(
                 tuple((pfpDirX_shwr[showers], df_pfp_showers.event[showers])))
             pfpDirY_event_prot.append(
@@ -550,6 +591,8 @@ for showers in tqdm(mcPdg_showers.index):
             mcEnergy_cosmic.append(mc_energy_shower)
             pfpEnergy_cosmic.append(pfp_energy_shower)
             diff_energy_cosmic.append(pfp_energy_shower - mc_energy_shower)
+            diff_energy_cosmic_p.append(
+                (pfp_energy_shower - mc_energy_shower) / mc_energy_shower)
             cosmic_pfp_hits.append(pfpHits)
             cosmic_mc_hits.append(mcHits)
             cosmic_ratio_hits.append(float(pfpHits) / float(mcHits))
@@ -563,6 +606,9 @@ for showers in tqdm(mcPdg_showers.index):
             vtx_diff_Y_cosmic.append(y_diff)
             vtx_diff_Z_cosmic.append(z_diff)
             # directions
+            dir_diff_cosmic.append(dir_dot_shwr)
+            pfp_theta_cosmic.append(pfp_theta)
+            pfp_phi_cosmic.append(pfp_phi)
             pfpDirX_event_cosmic.append(
                 tuple((pfpDirX_shwr[showers], df_pfp_showers.event[showers])))
             pfpDirY_event_cosmic.append(
@@ -583,6 +629,8 @@ for showers in tqdm(mcPdg_showers.index):
         mcEnergy_gamma.append(mc_energy_shower)
         pfpEnergy_gamma.append(pfp_energy_shower)
         diff_energy_gamma.append(pfp_energy_shower - mc_energy_shower)
+        diff_energy_gamma_p.append(
+            (pfp_energy_shower - mc_energy_shower) / mc_energy_shower)
         vtx_X_pfp_gamma.append(pfpVtxX_shwr[showers])
         vtx_Y_pfp_gamma.append(pfpVtxY_shwr[showers])
         vtx_Z_pfp_gamma.append(pfpVtxZ_shwr[showers])
@@ -594,6 +642,9 @@ for showers in tqdm(mcPdg_showers.index):
         vtx_diff_Y_gamma.append(y_diff)
         vtx_diff_Z_gamma.append(z_diff)
         # directions
+        dir_diff_gamma.append(dir_dot_shwr)
+        pfp_theta_gamma.append(pfp_theta)
+        pfp_phi_gamma.append(pfp_phi)
         pfpDirX_event_gamma.append(
             tuple((pfpDirX_shwr[showers], df_pfp_showers.event[showers])))
         pfpDirY_event_gamma.append(
@@ -627,6 +678,8 @@ for showers in tqdm(mcPdg_showers.index):
         mcEnergy_elec.append(mc_energy_shower)
         pfpEnergy_elec.append(pfp_energy_shower)
         diff_energy_elec.append(pfp_energy_shower - mc_energy_shower)
+        diff_energy_elec_p.append(
+            (pfp_energy_shower - mc_energy_shower) / mc_energy_shower)
         dir_diff_X_elec.append(dir_x_diff_shwr)
         dir_diff_Y_elec.append(dir_y_diff_shwr)
         dir_diff_Z_elec.append(dir_z_diff_shwr)
@@ -638,6 +691,8 @@ for showers in tqdm(mcPdg_showers.index):
         pfpVertexToWall_elec.append(distToWall(
             pfpVtxX_shwr[showers], pfpVtxY_shwr[showers], pfpVtxZ_shwr[showers]))
         # directions
+        pfp_theta_elec.append(pfp_theta)
+        pfp_phi_elec.append(pfp_phi)
         pfpDirX_event_elec.append(
             tuple((pfpDirX_shwr[showers], df_pfp_showers.event[showers])))
         pfpDirY_event_elec.append(
@@ -910,6 +965,23 @@ plt.close()
 fig_energy_diff = plt.figure()
 ax = fig_energy_diff.add_subplot(111)
 if(cosmic_file == 'False'):
+    mult_eng_diff = [diff_energy_pion_p, diff_energy_neut_p,
+                     diff_energy_prot_p, diff_energy_gamma_p, diff_energy_elec_p]
+    _ = plt.hist(mult_eng_diff, 40, (-1, 1), histtype='bar', fill=True, stacked=True,
+                 color=['wheat', 'goldenrod', 'darkmagenta', 'skyblue', 'tomato'], label=['Pion', 'Neutron', 'Proton', 'Photon', 'Electron'])
+if(cosmic_file == 'True'):
+    mult_eng_diff = [diff_energy_pion_p, diff_energy_neut_p,
+                     diff_energy_prot_p, diff_energy_gamma_p, diff_energy_elec_p, diff_energy_cosmic_p]
+    _ = plt.hist(mult_eng_diff, 40, (-1, 1), histtype='bar', fill=True, stacked=True,
+                 color=['wheat', 'goldenrod', 'darkmagenta', 'skyblue', 'tomato', 'darkslategray'], label=['Pion', 'Neutron', 'Proton', 'Photon', 'Electron', 'Cosmics'])
+ax.set_xlabel('Reco - True Shower Momentum / True Momentum (%)')
+plt.legend()
+fig_energy_diff.savefig('reco-true_shower_momentum_type_percent.pdf')
+plt.close()
+
+fig_energy_diff = plt.figure()
+ax = fig_energy_diff.add_subplot(111)
+if(cosmic_file == 'False'):
     mult_eng_diff = [pfpLength_pion, pfpLength_neut,
                      pfpLength_prot, pfpLength_gamma, pfpLength_elec]
     _ = plt.hist(mult_eng_diff, 40, (0, 100), histtype='bar', fill=True, stacked=True,
@@ -970,6 +1042,39 @@ ax.set_xlabel('Cosmic Min Distance to Wall [cm]')
 ax.set_ylabel('Reco - True Cosmic Momentum [Gev]')
 plt.colorbar()
 fig_shower_eng_2d.savefig('reco-true_cosmic_energy_distance_to_wall.pdf')
+plt.close()
+
+fig_shower_eng_2d = plt.figure()
+ax = fig_shower_eng_2d.add_subplot(111)
+_ = plt.hist2d(pfpVertexToWall_elec, diff_energy_elec_p,
+               20, cmap=cm.summer, norm=LogNorm())
+ax.set_xlabel('Electron Min Distance to Wall [cm]')
+ax.set_ylabel('Reco - True Electron Momentum / True Momentum (%)')
+plt.colorbar()
+fig_shower_eng_2d.savefig(
+    'reco-true_electron_energy_distance_to_wall_percent.pdf')
+plt.close()
+
+fig_shower_eng_2d = plt.figure()
+ax = fig_shower_eng_2d.add_subplot(111)
+_ = plt.hist2d(pfpVertexToWall_prot, diff_energy_prot_p,
+               20, cmap=cm.summer, norm=LogNorm())
+ax.set_xlabel('Proton Min Distance to Wall [cm]')
+ax.set_ylabel('Reco - True Proton Momentum / True Momentum (%)')
+plt.colorbar()
+fig_shower_eng_2d.savefig(
+    'reco-true_proton_energy_distance_to_wall_percent.pdf')
+plt.close()
+
+fig_shower_eng_2d = plt.figure()
+ax = fig_shower_eng_2d.add_subplot(111)
+_ = plt.hist2d(pfpVertexToWall_cosmic, diff_energy_cosmic_p,
+               20, cmap=cm.summer, norm=LogNorm())
+ax.set_xlabel('Cosmic Min Distance to Wall [cm]')
+ax.set_ylabel('Reco - True Cosmic Momentum / True Momentum (%)')
+plt.colorbar()
+fig_shower_eng_2d.savefig(
+    'reco-true_cosmic_energy_distance_to_wall_percent.pdf')
 plt.close()
 
 fig_shower_eng_2d = plt.figure()
@@ -1279,10 +1384,47 @@ plt.legend()
 fig_dir_shwr_diff.savefig('shower_reco-true_direction.pdf')
 plt.close()
 
+fig_theta_pfp = plt.figure()
+ax = fig_theta_pfp.add_subplot(111)
+if(cosmic_file == 'False'):
+    mult_theta_pfp = [pfp_theta_pion, pfp_theta_neut,
+                      pfp_theta_prot, pfp_theta_gamma, pfp_theta_elec]
+    _ = plt.hist(mult_theta_pfp, 40, (0, 180), histtype='bar', fill=True, stacked=True, color=[
+        'wheat', 'goldenrod', 'darkmagenta', 'skyblue', 'tomato'], label=['Pion', 'Neutron', 'Proton', 'Photon', 'Electron'])
+if(cosmic_file == 'True'):
+    mult_theta_pfp = [pfp_theta_pion, pfp_theta_neut,
+                      pfp_theta_prot, pfp_theta_gamma, pfp_theta_elec, pfp_theta_cosmic]
+    _ = plt.hist(mult_theta_pfp, 40, (0, 180), histtype='bar', fill=True, stacked=True, color=[
+        'wheat', 'goldenrod', 'darkmagenta', 'skyblue', 'tomato', 'darkslategray'], label=['Pion', 'Neutron', 'Proton', 'Photon', 'Electron', 'Cosmics'])
+ax.set_xlabel('Theta [Degrees]')
+plt.legend(loc='upper left')
+fig_theta_pfp.savefig('shower_theta.pdf')
+plt.close()
+
+fig_phi_pfp = plt.figure()
+ax = fig_phi_pfp.add_subplot(111)
+if(cosmic_file == 'False'):
+    mult_phi_pfp = [pfp_phi_pion, pfp_phi_neut,
+                    pfp_phi_prot, pfp_phi_gamma, pfp_phi_elec]
+    _ = plt.hist(mult_phi_pfp, 40, (0, 180), histtype='bar', fill=True, stacked=True, color=[
+        'wheat', 'goldenrod', 'darkmagenta', 'skyblue', 'tomato'], label=['Pion', 'Neutron', 'Proton', 'Photon', 'Electron'])
+if(cosmic_file == 'True'):
+    mult_phi_pfp = [pfp_phi_pion, pfp_phi_neut,
+                    pfp_phi_prot, pfp_phi_gamma, pfp_phi_elec, pfp_phi_cosmic]
+    _ = plt.hist(mult_phi_pfp, 40, (-180, 180), histtype='bar', fill=True, stacked=True, color=[
+        'wheat', 'goldenrod', 'darkmagenta', 'skyblue', 'tomato', 'darkslategray'], label=['Pion', 'Neutron', 'Proton', 'Photon', 'Electron', 'Cosmics'])
+ax.set_xlabel('phi [Degrees]')
+plt.legend(loc='upper left')
+fig_phi_pfp.savefig('shower_phi.pdf')
+plt.close()
+
 fig_dir_shwr_dot = plt.figure()
 ax = fig_dir_shwr_dot.add_subplot(111)
-_ = plt.hist(dir_diff_shwr, 40, (0, 180), histtype='bar',
-             fill=True, stacked=True, color='tomato', label='Dot Product')
+mult = [dir_diff_pion, dir_diff_neut, dir_diff_prot,
+        dir_diff_gamma, dir_diff_elec, dir_diff_cosmic]
+_ = plt.hist(mult, 40, (0, 180), histtype='bar',
+             fill=True, stacked=True, color=[
+                 'wheat', 'goldenrod', 'darkmagenta', 'skyblue', 'tomato', 'darkslategray'], label=['Pion', 'Neutron', 'Proton', 'Photon', 'Electron', 'Cosmics'])
 ax.set_xlabel('Shower Reco:True Theta')
 plt.legend()
 fig_dir_shwr_dot.savefig('shower_reco_true_dot_dir.pdf')
