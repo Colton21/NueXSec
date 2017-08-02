@@ -910,6 +910,27 @@ plt.colorbar()
 fig_shower_hits_2d.savefig('electron_ratio_hits_reco_hits.pdf')
 plt.close()
 
+# 2d histogram of shower legnth vs true theta/phi
+fig_length_theta_2d = plt.figure()
+ax = fig_length_theta_2d.add_subplot(111)
+_ = plt.hist2d(pfpLength_elec, pfp_theta_elec,
+               20, cmap=cm.summer, norm=LogNorm())
+ax.set_xlabel('Reco Shower Length Electron [cm]')
+ax.set_ylabel('Reco Shower Theta Electron [Degrees]')
+plt.colorbar()
+fig_length_theta_2d.savefig('electron_length_theta.pdf')
+plt.close()
+
+fig_length_phi_2d = plt.figure()
+ax = fig_length_phi_2d.add_subplot(111)
+_ = plt.hist2d(pfpLength_elec, pfp_phi_elec,
+               20, cmap=cm.summer, norm=LogNorm())
+ax.set_xlabel('Reco Shower Length Electron [cm]')
+ax.set_ylabel('Reco Shower Phi Electron [Degrees]')
+plt.colorbar()
+fig_length_phi_2d.savefig('electron_length_phi.pdf')
+plt.close()
+
 # histograms for energy
 fig_energy_mc = plt.figure()
 ax = fig_energy_mc.add_subplot(111)
