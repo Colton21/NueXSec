@@ -107,23 +107,46 @@ print 'MC Particles reco as PFPs: ', nEvents_validPFP
 ##print statements##
 printInfo(df, num_mc_cc_nue)
 
+###################################
+# Minimum hits threshold
+##################################
+print ' ============================= '
+print ' ====== Hits Threshold ======='
+print ' ============================= '
+hit_threshold = 90
+df = pfpHitThreshold(df, hit_threshold)
+print 'Hit Threshold, ', hit_threshold
+printInfo(df, num_mc_cc_nue)
+
 ######################
 # Fiducial Volume Cut
 ######################
 print ' ============================ '
 print ' ==== Fiducial Volume Cut: =='
 print ' ============================ '
-x_min = 10
-x_max = 10
-y_min = 10
-y_max = 50
-z_min = 10
-z_max = 10
+x_min = 0
+x_max = 0
+y_min = 0
+y_max = 50  # this one is the top
+z_min = 0
+z_max = 0
 df = pfpInFV(df, x_min, x_max, y_min, y_max, z_min, z_max)
 nEvents_pfpInTPC = len(df.index)
 print 'PFP in FV: ', nEvents_pfpInTPC
 ##print statements##
 printInfo(df, num_mc_cc_nue)
+
+################################
+# Distance between vertex to nue
+################################
+print ' ============================ '
+print ' ==== Shower - Nue Cut: ====='
+print ' ============================ '
+vtx_to_nu_distance = 50  # cm
+print 'Shower to Nue Distance: ', vtx_to_nu_distance, ' cm '
+df = vtxNuDistance(df, vtx_to_nu_distance)
+printInfo(df, num_mc_cc_nue)
+
 
 ###################################
 # vertex to flash information
@@ -133,6 +156,7 @@ print ' ===== Vertex-To-Flash: ====='
 print ' ============================ '
 distance = 100
 df = flashRecoVtxDist(df, df_opt, distance)
+print 'Vertex to Flash: ', distance, ' cm '
 print 'Passed Flash-Vtx Cut: ', len(df.index)
 
 

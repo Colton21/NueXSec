@@ -113,7 +113,7 @@ def flashRecoVtxDist(dataframe_reco, dataframe_opt, distance):
                  fill=True, stacked=True, color=['wheat', 'goldenrod', 'darkmagenta', 'skyblue', 'tomato', 'darkslategray'], label=['Pion', 'Neutron', 'Proton', 'Photon', 'Electron', 'Cosmics'])
     ax.set_xlabel('Dist. Reco Shower Vertex to Largest Flash YZ [cm]')
     plt.legend()
-    plt.show()
+    # plt.show()
 
     return dataframe_reco
 
@@ -384,6 +384,45 @@ def mcPartBreakdown(dataframe):
 
     return info_list
 
+
+def pfpHitThreshold(dataframe, hit_threshold):
+    dataframe = dataframe.drop(
+        dataframe[dataframe.nPfoHits < hit_threshold].index)
+    return dataframe
+
+
+def vtxNuDistance(dataframe, vtx_to_nu_distance):
+    df_pfp_nues = dataframe.drop(dataframe[dataframe.pfoPdg != 12].index)
+    df_pfp_showers = dataframe.drop(dataframe[dataframe.pfoPdg != 11].index)
+
+    for nues in tqdm(df_pfp_nues.index):
+        valid_shower = False
+        vtxX_nue = df_pfp_nues.pfoVtxX[nues]
+        vtxY_nue = df_pfp_nues.pfoVtxY[nues]
+        vtxZ_nue = df_pfp_nues.pfoVtxZ[nues]
+        temp_df1 = df_pfp_showers.drop(
+            df_pfp_showers[df_pfp_showers.event != df_pfp_nues.event[nues]].index)
+        for showers in temp_df1.index:
+            vtxX_shwr = temp_df1.pfoVtxX[showers]
+            vtxY_shwr = temp_df1.pfoVtxY[showers]
+            vtxZ_shwr = temp_df1.pfoVtxZ[showers]
+            diff_nue_shower_vtx = np.sqrt(
+                ((vtxX_shwr - vtxX_nue) * (vtxX_shwr - vtxX_nue)) +
+                ((vtxY_shwr - vtxY_nue) * (vtxY_shwr - vtxY_nue)) +
+                ((vtxZ_shwr - vtxZ_nue) * (vtxZ_shwr - vtxZ_nue)))
+            if(diff_nue_shower_vtx >= vtx_to_nu_distance):
+                dataframe = dataframe.drop(
+                    dataframe[dataframe.index == showers].index)
+
+            if(diff_nue_shower_vtx < vtx_to_nu_distance):
+                valid_shower = True
+        if(valid_shower == False):
+            # we didn't find any showers within the range for the nue
+            dataframe = dataframe.drop(
+                dataframe[dataframe.event == df_pfp_nues.event[nues]].index)
+
+    return dataframe
+
 # cosmic breakdown - most conservative
 
 
@@ -451,4 +490,9 @@ def getPfpShower(dataframe):
 
 def getCConly(dataframe):
     dataframe = dataframe.drop(dataframe[dataframe.mcIsCC == False].index)
+    return dataframe
+
+
+def getAllElec(dataframe):
+    dataframe = dataframe.drop(dataframe[dataframe.mcPdg != 11].index)
     return dataframe

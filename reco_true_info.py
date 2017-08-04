@@ -931,6 +931,28 @@ plt.colorbar()
 fig_length_phi_2d.savefig('electron_length_phi.pdf')
 plt.close()
 
+# 2d angles
+fig_theta_phi_2d = plt.figure()
+ax = fig_theta_phi_2d.add_subplot(111)
+_ = plt.hist2d(pfp_theta_elec, pfp_phi_elec,
+               20, cmap=cm.summer, norm=LogNorm())
+ax.set_xlabel('Reco Shower Theta Electron [Degrees]')
+ax.set_ylabel('Reco Shower Phi Electron [Degrees]')
+plt.colorbar()
+fig_theta_phi_2d.savefig('electron_theta_phi.pdf')
+plt.close()
+
+# 2d angles
+fig_theta_phi_2d = plt.figure()
+ax = fig_theta_phi_2d.add_subplot(111)
+_ = plt.hist2d(pfp_theta_cosmic, pfp_phi_cosmic,
+               20, cmap=cm.summer, norm=LogNorm())
+ax.set_xlabel('Reco Shower Theta Cosmic [Degrees]')
+ax.set_ylabel('Reco Shower Phi Cosmic [Degrees]')
+plt.colorbar()
+fig_theta_phi_2d.savefig('cosmic_theta_phi.pdf')
+plt.close()
+
 # histograms for energy
 fig_energy_mc = plt.figure()
 ax = fig_energy_mc.add_subplot(111)
@@ -1620,18 +1642,29 @@ plt.close()
 diff_nue_shower_vtx_elec = []
 diff_nue_shower_vtx_gamma = []
 diff_nue_shower_vtx_prot = []
+diff_nue_shower_vtx_cosmic = []
 for nues in tqdm(df_pfp_nues.index):
-    # this is so we only look at true nues?
-    if(mcPdg_nue[nues] != pfpPdg_nue[nues]):
-        # tqdm.write('Nue and Shower: MC PDG and PFP PDG do not match!')
-        continue
+
+    # this means that the nue is not a true nue
+    # if(df_pfp_nues.mcNuPdg[nues] == 0):
+    #     continue
 
     temp_df1 = df_pfp_showers.drop(
         df_pfp_showers[df_pfp_showers.event != df_pfp_nues.event[nues]].index)
     for showers in (temp_df1.index):
-        # print 'Nue Vtx X: ', pfpVtxX[nues]
-        # print 'Particle: ', showers, ' has a Vtx X: ', pfpVtxX_shwr[showers]
-        if(temp_df1.pfoPdg[showers] == 11):
+        # first thing we want is the cosmics
+        if(temp_df1.mcNuPdg[showers] == 0):
+            vtxX_shwr = pfpVtxX_shwr[showers]
+            vtxY_shwr = pfpVtxY_shwr[showers]
+            vtxZ_shwr = pfpVtxZ_shwr[showers]
+            _diff_nue_shower_vtx_cosmic = np.sqrt(
+                ((vtxX_shwr - pfpVtxX[nues]) * (vtxX_shwr - pfpVtxX[nues])) +
+                ((vtxY_shwr - pfpVtxY[nues]) * (vtxY_shwr - pfpVtxY[nues])) +
+                ((vtxZ_shwr - pfpVtxZ[nues]) * (vtxZ_shwr - pfpVtxZ[nues])))
+            diff_nue_shower_vtx_cosmic.append(_diff_nue_shower_vtx_cosmic)
+            continue
+
+        if(temp_df1.mcPdg[showers] == 11):
             vtxX_shwr = pfpVtxX_shwr[showers]
             vtxY_shwr = pfpVtxY_shwr[showers]
             vtxZ_shwr = pfpVtxZ_shwr[showers]
@@ -1640,8 +1673,9 @@ for nues in tqdm(df_pfp_nues.index):
                 ((vtxY_shwr - pfpVtxY[nues]) * (vtxY_shwr - pfpVtxY[nues])) +
                 ((vtxZ_shwr - pfpVtxZ[nues]) * (vtxZ_shwr - pfpVtxZ[nues])))
             diff_nue_shower_vtx_elec.append(_diff_nue_shower_vtx_elec)
+            continue
 
-        if(temp_df1.pfoPdg[showers] == 22):
+        if(temp_df1.mcPdg[showers] == 22):
             vtxX_shwr = pfpVtxX_shwr[showers]
             vtxY_shwr = pfpVtxY_shwr[showers]
             vtxZ_shwr = pfpVtxZ_shwr[showers]
@@ -1650,8 +1684,9 @@ for nues in tqdm(df_pfp_nues.index):
                 + ((vtxY_shwr - pfpVtxY[nues]) * (vtxY_shwr - pfpVtxY[nues]))
                 + ((vtxZ_shwr - pfpVtxZ[nues]) * (vtxZ_shwr - pfpVtxZ[nues])))
             diff_nue_shower_vtx_gamma.append(_diff_nue_shower_vtx_gamma)
+            continue
 
-        if(temp_df1.pfoPdg[showers] == 2212):
+        if(temp_df1.mcPdg[showers] == 2212):
             vtxX_shwr = pfpVtxX_shwr[showers]
             vtxY_shwr = pfpVtxY_shwr[showers]
             vtxZ_shwr = pfpVtxZ_shwr[showers]
@@ -1660,15 +1695,17 @@ for nues in tqdm(df_pfp_nues.index):
                 + ((vtxY_shwr - pfpVtxY[nues]) * (vtxY_shwr - pfpVtxY[nues]))
                 + ((vtxZ_shwr - pfpVtxZ[nues]) * (vtxZ_shwr - pfpVtxZ[nues])))
             diff_nue_shower_vtx_prot.append(_diff_nue_shower_vtx_prot)
+            continue
 
 # histogram of nue vtx to shower vtx
 fig_vtx_diff = plt.figure()
 ax = fig_vtx_diff.add_subplot(111)
 mult_vtx = [diff_nue_shower_vtx_elec, diff_nue_shower_vtx_gamma,
-            diff_nue_shower_vtx_prot]
-_ = plt.hist(mult_vtx, 80, (0, 80), histtype='bar', fill=True, stacked=False, color=[
-    'tomato', 'skyblue', 'darkmagenta'], label=['Electron', 'Photon', 'Proton'])
+            diff_nue_shower_vtx_prot, diff_nue_shower_vtx_cosmic]
+_ = plt.hist(mult_vtx, 80, (0, 200), histtype='bar', fill=True, stacked=True, color=[
+    'tomato', 'skyblue', 'darkmagenta', 'darkslategray'], label=['Electron', 'Photon', 'Proton', 'Cosmic'])
 ax.set_xlabel('Reco: Shower - Nue Vertex [cm]')
+ax.set_yscale('log')
 plt.legend()
 fig_vtx_diff.savefig('distance_nue_shower_vtx.pdf')
 plt.close()
@@ -1812,9 +1849,69 @@ plt.legend()
 fig_vtx_diff.savefig('electron_shower_dot_product.pdf')
 plt.close()
 
-####################
+###############################################################################
+# let's do some more in-depth efficiency calculation
+# how does reco efficiency change with energy?
+###############################################################################
+df_elec = getAllElec(df)
+reco_almost_good = 0
+reco_good = 0
+reco_base = 0
+reco_bad = 0
+not_reco = 0
+num_true_elec = len(df_elec.index)
+good_Energy = []
+almost_good_Energy = []
+bad_Energy = []
+for electron in df_elec.index:
+    # df_elec.mcPdg[electron]
+    this_pfpPdg = df_elec.pfoPdg[electron]
+    this_pfpNuPdg = df_elec.pfoNuPdg[electron]
+    this_pfpEnergy = df_elec.pfoEnergy[electron]
+    # reco as shower
+    if(this_pfpPdg == 11):
+        reco_base = reco_base + 1
+        # associated to a nue
+        if(this_pfpNuPdg == 12):
+            reco_good = reco_good + 1
+            good_Energy.append(this_pfpEnergy)
+
+        if(this_pfpNuPdg == 14):
+            reco_almost_good = reco_almost_good + 1
+            almost_good_Energy.append(this_pfpEnergy)
+
+    # reco as track
+    if(this_pfpPdg == 13):
+        reco_bad = reco_bad + 1
+        bad_Energy.append(this_pfpEnergy)
+
+    # not reco at all
+    if(this_pfpPdg == 0):
+        not_reco = not_reco + 1
+
+fig_elec_energy = plt.figure()
+ax = fig_elec_energy.add_subplot(111)
+mult = [good_Energy, almost_good_Energy, bad_Energy]
+_ = plt.hist(mult, 40, (0, 3), histtype='bar', fill=True, stacked=True, color=[
+    'wheat', 'skyblue', 'tomato'], label=['Shower, Nue', 'Shower, Numu', 'Track'])
+ax.set_xlabel('Reconstructed Electron Energy [GeV]')
+plt.legend()
+fig_elec_energy.savefig('electron_shower_energies.pdf')
+plt.close()
+
+######################
 # Print statements
-####################
+######################
+print '---------------------------------------------'
+print 'Electrons: '
+print 'True Electrons                   : ', num_true_elec
+print 'Reco Electrons                   : ', reco_base
+print 'Reco Electrons associated to Nue : ', reco_good
+print 'Reco Electrons associated to Numu: ', reco_almost_good
+print 'Reco Electrons reco as tracks    : ', reco_bad
+print 'Reco Electrons not reconstructed : ', not_reco
+print '---------------------------------------------'
+
 print 'Nues: '
 nue_efficiency = float(nPfpNues) / float(nMCNues) * 100.
 print 'All  Nue Reco Efficiency: ', nue_efficiency, '(', float(nPfpNues), ' / ', float(nMCNues), ')'
